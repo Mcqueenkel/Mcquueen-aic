@@ -1,0 +1,48 @@
+# --- Python / tooling -------------------------------------------------------
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.log
+
+# --- Third-party code: Icarus (proprietary licence - no redistribution) -------
+# uma_api, career_bot and the Frida agent; copy them in from an Icarus checkout.
+vendor/
+
+# --- Runtime state: accounts, Link Passwords, Steam/auth tokens, logs -------
+state/
+runtime/
+backup_*/
+uma_runtime/
+steam_auth_data/
+trace_logs/
+dumps/
+node_modules/
+.venv/
+venv/
+accounts.json
+CHANGES_FROM_DISCORD.md
+
+# --- Credentials and secrets: NEVER commit -----------------------------------
+# Link Passwords in plain text - recovery credentials for real accounts.
+reroll_accounts.json
+accounts.txt
+accounts_with_passwords.*
+# Discord bot token.
+bot.json
+settings.json
+auth_config*.json
+*.env
+.env*
+*.pem
+*.key
+id_rsa*
+webhook*.txt
+*.maFile
+*_refresh.txt
+aic-vps-backup/
+
+# --- Large / third-party binaries ---------------------------------------------
+# Windows frida-server binary for the Linux (Proton) capture path; fetched per
+# the instructions in aic/proton.py, not committed (large, versioned).
+tools/frida-server*.exe
+*.mdb

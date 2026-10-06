@@ -1,0 +1,160 @@
+# systemd unit for the AIC idle-career farmer, running BESIDE the Icarus bot on the same VPS.
+#
+#   sudo cp deploy/aic.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now aic
+#
+# Modelled directly on /opt/umabot's deploy/umabot.service; the hardening below is the same
+# hardening, and the reasons in that file apply here unchanged. Read DEPLOY_LINUX.md first.
+#
+# ---------------------------------------------------------------------------------------------
+# THE ONE RULE THAT IS NOT ABOUT THIS FILE
+#
+#   AIC AND umabot MUST NOT HOLD THE SAME IN-GAME ACCOUNT AT THE SAME TIME. Both spend the one
+#   Steam session ticket for the one Steam slot; two services fighting over it is the "never run
+#   two of your accounts at once" rule, now spread across two units. Give them DISJOINT accounts.
+#
+#   That is what AIC_PROFILE=aic below is for: it puts AIC's credentials in
+#   /opt/umabot/uma_runtime/aic/auth_config.json, a different file from the sweep's
+#   /var/lib/umabot/auth_config.json, so the two cannot silently become the same account.
+#
+# BEFORE THE FIRST START
+#
+#   1. Seed /opt/umabot/uma_runtime/aic/auth_config.json for AIC's OWN account (carry it from
+#      Windows, or ./account.sh import-capture). Nothing here can capture one without Proton.
+#   2. ./aic.sh status        -- proves the vendored client imports and the identity logs in
+#   3. ./aic.sh run --dry-run -- proves it can build a legal selection and schedule
+#      Do 2 and 3 by hand, as the umabot user, before enabling this unit.
+#
+# ALERT ON THE STATE, NOT THE TRANSITION -- see deploy/aic-health.{service,timer}. This unit can
+# sit ACTIVE while every login dies; `systemctl is-active aic` will not tell you.
+# ---------------------------------------------------------------------------------------------
+
+[Unit]
+Description=AutoIndependentCareer idle-career farmer
+After=network-online.target
+Wants=network-online.target
+
+# StartLimit* are parsed ONLY in [Unit]; in [Service] systemd ignores them with a log warning,
+# which silently disables the backoff. Three failed starts an hour, then stop -- rather than a
+# dead Steam ticket at 3am turning into a restart loop that fires a Steam password login every
+# two minutes until Steam locks the account.
+# KEEP GOING rather than give up. umabot uses 3/hour, which is right for a bot a
+# person restarts by hand; this one is meant to run unattended for weeks, and the
+# failures it actually sees (no clocks, a career the server will not end) are
+# already handled as WAITS inside the loop, not crashes. So a crash here is rare
+# and almost always transient - stopping permanently after three would turn a
+# five-minute blip into days of silent downtime.
+#
+# The Steam protection that limit exists for is preserved by RestartSec below,
+# NOT by the burst count: 20 restarts an hour is still at most one login every
+# 5 minutes, well short of anything Steam rate-limits.
+StartLimitIntervalSec=3600
+StartLimitBurst=20
+
+[Service]
+Type=simple
+# The SAME user as umabot: AIC reads that deployment's data/ and node_modules/steam-user, and
+# writes its credentials under /opt/umabot/uma_runtime/.
+#   chown -R umabot:umabot /opt/aic
+User=umabot
+Group=umabot
+UMask=0077
+WorkingDirectory=/opt/aic
+
+# Shared with umabot on purpose -- one file, chmod 600, owned by root, outside both app trees.
+#   UMA_APP_VER          the version oracle. AIC's vendored client reads the same variable, so
+#                        one /opt/umabot/scripts/push_app_ver.py on patch day serves both units.
+#   UMA_ALERT_WEBHOOK    Discord, for aic-health.service.
+#
+# WHAT MAKES *AIC* UNATTENDED IS NOT AN ENVIRONMENT VARIABLE. umabot reads UMA_STEAM_USERNAME /
+# UMA_STEAM_PASSWORD / UMA_STEAM_SHARED_SECRET from here; AIC reads NONE of them. It takes its
+# Steam credentials from auth_config.json (aic/steam.py:314-316): `steam_refresh_token`,
+# `steam_username`, `steam_password_seed`. A STORED steam_refresh_token IS THE ONE THING THAT
+# MATTERS -- it is written on the first successful interactive login (aic/auth.py:266) and skips
+# both the password and the Guard code thereafter.
+#
+# So: run `./aic.sh login` BY HAND ONCE, on a terminal, answering the Guard prompt, before you
+# enable this unit. aic/steam.py:243 only prompts when stdin.isatty(); with no tty it raises
+# SteamGuardRequired, which aic/auth.py:253-256 SWALLOWS and carries on with the stale stored
+# ticket -- so the unit does not hang, it quietly degrades into 391/394 login failures that look
+# like something else entirely. (auth_config's `steam_shared_secret` is NOT a substitute: it is
+# only read on the one-shot fallback path at auth.py:275-286, never on the default persistent
+# session.) aic-health.service is what tells you this happened.
+EnvironmentFile=/etc/umabot.env
+
+# The Icarus checkout, for its DATA only: data/*.json, master.mdb and node_modules/steam-user.
+# The wire client itself is vendored at /opt/aic/vendor/uma_api, so the two cannot diverge.
+Environment=AIC_ICARUS_ROOT=/opt/umabot
+# A profile of AIC's own -> /opt/umabot/uma_runtime/aic/, NOT the sweep's /var/lib/umabot.
+# This is the disjoint-accounts rule, enforced by path. See the note at the top.
+Environment=AIC_PROFILE=aic
+Environment=AIC_PY=/home/umabot/.venvs/aic/bin/python
+# The game's master.mdb, for TRAINEE-SPECIFIC race lists. Without it racedata falls back
+# to the account's saved agenda, which is not trainee-specific and the server REFUSES it
+# with 205 (measured on this box 2026-09-01). None of the paths aic/racedata.py probes
+# exist on a VPS with no game install, so it has to be pointed at explicitly.
+# Refresh it from the Windows install on patch day, same trip as UMA_APP_VER.
+Environment=AIC_MASTER_MDB=/opt/umabot/master.mdb
+
+# THE DAILY FAN CAP (aic/fancap.py). Fans gained per account per game-day, rolling over at the
+# 15:00 UTC reset, with the baseline persisted so a restart continues the day instead of farming
+# the whole target a second time. Unset = no cap at all, which is the old behaviour.
+# Stop this far SHORT of the target so the career already in flight can finish without
+# overshooting. MEASURE ONE CYCLE'S BANKED FANS AND SET THIS ABOVE IT -- idle-career yield is not
+# the same as the turn-by-turn yield the 1,100,000 default was measured from.
+
+# TP top-up. The accounts hold ZERO TP potions, so --recover-tp alone does
+# nothing; carats are the only refill available. AIC_TP_JEWEL_FLOOR is never
+# spent below - carats cannot be re-earned by waiting, and this loop is
+# unattended, so the floor is what stops a bad night draining the account.
+Environment=AIC_TP_JEWEL_FLOOR=0
+
+# One account, idle careers forever. For a roster instead, swap in:
+#   ExecStart=/opt/aic/rotate.sh run
+# and give it /opt/aic/reroll_accounts.json. Do NOT enable both at once -- they would fight over
+# the same Steam slot exactly the way AIC and umabot would.
+ExecStart=/opt/aic/rotate.sh run --scenario 1 --use-tp 30 --running-style 3 --races 1:637,1:629,1:630,1:632,1:633,1:627,1:624,1:625,2:181,2:169,2:171,2:163,2:164,2:166,2:73,2:74,2:1023,2:82,2:176,2:85,2:76,2:77,2:79,2:80,2:81,3:8,3:9,3:1,3:11,3:3,3:4,3:5,3:73,3:74,3:101,3:82,3:109,3:85,3:76,3:77,3:79,3:80,3:81 --recover-tp --recover-tp-jewels --auto-deck
+
+# Exiting when auth cannot be established is CORRECT. But back off rather than hammer: a restart
+# loop here is a Steam login every RestartSec, which is how you get rate-limited.
+# always, not on-failure: a clean exit should not be able to end the farm either.
+# rotate.run never returns without --cycles, so a code-0 exit means something
+# unexpected finished the loop - and stopping there would be just as silent.
+Restart=always
+RestartSec=300
+StandardOutput=null
+# StartLimitIntervalSec / StartLimitBurst live in [Unit] above -- see the note there.
+
+# The user is the blast radius for a bug parsing game responses.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+# READ-ONLY, not true. umabot.service uses ProtectHome=true because it runs /opt/umabot/.venv --
+# AIC's interpreter is ~/.venvs/aic/bin/python (the exFAT drive cannot hold a venv, so it lives
+# under $HOME), and ProtectHome=true empties /home, so the unit would fail to exec its own
+# Python. Nothing here writes to home: the Steam refresh token is stored in auth_config.json
+# under the runtime dir, not in a home cache.
+ProtectHome=read-only
+
+# EVERYTHING AIC WRITES. ProtectSystem=strict makes /opt read-only, and the failure mode of a
+# missing path here is silent: a refreshed auth_key or a learned succession offset is simply
+# discarded and re-derived forever.
+#
+#   state/            logs/aic.log, fan_day.json, succession_offsets.json, tp_cost.json,
+#                     server_clock.json, race_rules.json, accounts.json, auth_archive/
+ReadWritePaths=/opt/aic/state
+ReadWritePaths=/opt/aic/runtime
+#   uma_runtime/aic/  auth_config.json (rewritten whenever the auth_key or Steam token is
+#                     refreshed) and the client's own api_library/ and logs
+ReadWritePaths=/opt/umabot/uma_runtime
+# Written by `rotate init` and by the account farmer, not by a normal run. Leading '-' so a
+# missing file is not a start failure.
+ReadWritePaths=-/opt/aic/reroll_accounts.json
+
+# A cycle is ~50 minutes of waiting, but SIGTERM is only ever taken between calls, so it stops
+# promptly. Give an in-flight request room to finish rather than SIGKILL mid-msgpack.
+KillSignal=SIGTERM
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

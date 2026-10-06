@@ -1,0 +1,28 @@
+[Unit]
+Description=AIC Discord control bot (farm commands + !ask Claude)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=3600
+StartLimitBurst=20
+
+[Service]
+Type=simple
+# root: it restarts aic and edits /etc/umabot.env. It runs a root-owned copy of
+# scripts/discord_bot.py (installed by scripts/discord_setup.sh) with -I, so
+# nothing umabot can write is ever imported. !ask starts Claude in its own
+# transient unit (aic-claude) as claudeops, who has sudo - so !ask is root on
+# this box, guarded by the user/channel ids in the env file.
+User=root
+EnvironmentFile=/etc/aic-discord.env
+Environment=AIC_HOME=/opt/aic
+ExecStart=/opt/aic-discord/venv/bin/python -I -u /opt/aic-discord/discord_bot.py
+Restart=always
+RestartSec=30
+# a small box shared with the farm: if memory runs out, this goes before aic
+MemoryMax=300M
+OOMScoreAdjust=500
+Nice=5
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

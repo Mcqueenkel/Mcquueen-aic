@@ -1,0 +1,21 @@
+# How often the wedged state is re-reported. THIS interval is the re-alert rate: health_alert.py
+# keeps no "already told you" file and does no edge detection, so every firing that still finds a
+# fault posts again. That is the point.
+#
+# Offset from umabot-health.timer's :00/:30 so the two bots' alerts do not arrive as one wall.
+[Unit]
+Description=Poll the AIC idle farmer for the wedged state
+
+[Timer]
+# WALL CLOCK, deliberately -- not OnUnitActiveSec=30min. health_alert.py exits 1 whenever it
+# finds a fault, so the triggered service ends in ActiveState=failed with an empty
+# ActiveEnterTimestamp, and OnUnitActiveSec has no timestamp to schedule from. OnCalendar is
+# absolute: it fires no matter what state anything else is in.
+OnCalendar=*:15/30
+RandomizedDelaySec=2m
+# No Persistent=true. A missed check has nothing to catch up on -- the next run reads the same
+# live state. Replaying skipped firings would only fire a burst of alerts after a reboot.
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

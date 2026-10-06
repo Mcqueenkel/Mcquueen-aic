@@ -1,0 +1,15 @@
+# aic imports the wire protocol from the Icarus checkout, so its dependencies
+# are what matter. Running via aic.bat (which uses Icarus' .venv) needs nothing
+# installed here.
+#
+# Install these only if you want to run aic with a separate interpreter:
+curl_cffi==0.7.4
+msgpack==1.1.0
+pycryptodome==3.14.1
+
+# Only for `account capture` on Linux (drives frida-server inside the game's
+# Proton/Wine session; see aic/proton.py). Not needed to run careers.
+frida==17.17.0
+
+# Node.js is also required (for Steam session ticket generation) - the Icarus
+# checkout's node_modules provides `steam-user`.

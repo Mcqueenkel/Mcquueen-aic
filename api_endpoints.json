@@ -1,0 +1,2723 @@
+{
+ "source": "global-metadata.dat v31, UmamusumePrettyDerby (Steam global)",
+ "total": 514,
+ "by_controller": {
+  "account": [
+   {
+    "path": "account/chain_by_icloud_data",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "account/chain_by_social_account",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "account/chain_by_transition_code",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "account/chain_disconnect",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "account/create_facebook_nonce",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "account/deletion_cancel",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "account/deletion_request",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "account/get_by_icloud_data",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "account/get_by_social_account",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "account/get_by_transition_code",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "account/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "account/publish_transition_code",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "account/steam_chain_disconnect",
+    "bot_uses": true,
+    "captured": false
+   }
+  ],
+  "banner": [
+   {
+    "path": "banner/url",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "campaign_walking": [
+   {
+    "path": "campaign_walking/check_result",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "campaign_walking/go_walking",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "campaign_walking/index",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "card": [
+   {
+    "path": "card/get_card_event_skill",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "card/get_release_card_array",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "card/rarity_upgrade",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "card/sell_piece",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "card/skill_upgrade",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "card/talent_strengthen",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "card/unlock",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "challenge_match": [
+   {
+    "path": "challenge_match/challenge_race_open",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "challenge_match/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "challenge_match/race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "challenge_match/race_entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "challenge_match/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "challenge_match/reflect_item_effect",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "challenge_match/reset",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "challenge_match/resume",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "champions": [
+   {
+    "path": "champions/all_race_exec",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/cancel",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/final_lobby",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/final_race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/final_race_ranking",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/final_race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/final_round_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/get_news_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/get_news_win_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/get_race_history_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/get_race_result_chart",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/get_ranking_chara_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/get_reward_array",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/lobby",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/paddock_index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/poll",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/race_entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/round_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/select_league",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions/set_entry_chara",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "champions_stamp": [
+   {
+    "path": "champions_stamp/poll",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "champions_stamp/send_stamp",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "character_story": [
+   {
+    "path": "character_story/first_clear",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "circle": [
+   {
+    "path": "circle/break_up",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle/check_join",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle/conditional_search",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle/detail",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle/get_post_partner_data",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle/get_profile_card_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle/get_ranking_top",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle/list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle/make",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle/room_enter",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "circle/set_profile_card_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle/update",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "circle_chat": [
+   {
+    "path": "circle_chat/invite_room_match",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_chat/polling",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "circle_chat/post_partner",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_chat/send_item_request",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "circle_chat/send_message",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_chat/send_stamp",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "circle_item_request": [
+   {
+    "path": "circle_item_request/donate",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_item_request/donate_multiple",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "circle_item_request/get_request_data",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "circle_item_request/receive",
+    "bot_uses": true,
+    "captured": true
+   }
+  ],
+  "circle_user": [
+   {
+    "path": "circle_user/approve_join_request",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/approve_scout",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/cancel_join_request",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/cancel_scout",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/change_leader",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/change_sub_leader",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/checked_request",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/decline_join_request",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/get_profile",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/get_profile_card_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/join_request",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/kick",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/leave",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/scout",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/set_profile",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "circle_user/set_profile_card_info",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "collect_event_map": [
+   {
+    "path": "collect_event_map/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "collect_event_map/tap_reward",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "collect_raid": [
+   {
+    "path": "collect_raid/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "collect_raid/polling",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "collect_raid/receive_individual_reward",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "collect_raid/story_clear",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "cygames_id_external": [
+   {
+    "path": "cygames_id_external/apply_pending_product",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "daily_legend_race": [
+   {
+    "path": "daily_legend_race/get_reward_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "daily_legend_race/index",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "daily_legend_race/race_entry",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "daily_legend_race/race_start",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "daily_legend_race/reflect_item_effect",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "daily_legend_race/replay_check",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "daily_legend_race/reset",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "daily_legend_race/resume",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "daily_race": [
+   {
+    "path": "daily_race/get_reward_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "daily_race/index",
+    "bot_uses": false,
+    "captured": true
+   },
+   {
+    "path": "daily_race/pre_replay_check",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "daily_race/race_entry",
+    "bot_uses": false,
+    "captured": true
+   },
+   {
+    "path": "daily_race/race_start",
+    "bot_uses": false,
+    "captured": true
+   },
+   {
+    "path": "daily_race/recovery_ticket",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "daily_race/reflect_item_effect",
+    "bot_uses": false,
+    "captured": true
+   },
+   {
+    "path": "daily_race/replay_check",
+    "bot_uses": false,
+    "captured": true
+   },
+   {
+    "path": "daily_race/reset",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "daily_race/resume",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "daily_race_skip": [
+   {
+    "path": "daily_race_skip/race_skip",
+    "bot_uses": false,
+    "captured": true
+   }
+  ],
+  "debug": [
+   {
+    "path": "debug/call_payment_dummy",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "debug/circle_direct",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "debug/race_info_load",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "debug/race_simulate",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "debug/race_simulate_direct",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "debug/single_mode_story_direct",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "debug/tutorial_skip",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "extra_story": [
+   {
+    "path": "extra_story/first_clear",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "factor_research": [
+   {
+    "path": "factor_research/factor_update",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "factor_research/factor_update_index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "factor_research/index",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "fan_raid": [
+   {
+    "path": "fan_raid/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "fan_raid/polling",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "friend": [
+   {
+    "path": "friend/follow",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "friend/get_team_stadium_team_data",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "friend/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "friend/renew_recommend_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "friend/search",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "friend/simple_search",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "friend/un_follow",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "friend/un_follower",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "gacha": [
+   {
+    "path": "gacha/exec",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "gacha/get_history",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "gacha/get_prize_history",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "gacha/index",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "gacha/limit_exchange",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "gacha/select_prize",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "gallery": [
+   {
+    "path": "gallery/play_event",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "gallery/save_gallery_data",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "heroes": [
+   {
+    "path": "heroes/final_check_race",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/final_edit_team",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/final_get_race_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/final_get_race_replay",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/final_get_umaine",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/final_set_umaine",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/get_past_race_replay",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/get_past_results",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/get_ranking",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/get_ranking_chara_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_check_hero_skill",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_check_opponent_teams",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_check_round",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_edit_team",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_edit_team_name",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_finish_set",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_get_opponent_teams",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_grand_result",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_honor_select_chara",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_honor_select_chara_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_resume",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_set_option",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "heroes/stage1_start_set",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "honor": [
+   {
+    "path": "honor/change_honor",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "honor/index",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "idle_single_mode": [
+   {
+    "path": "idle_single_mode/check_progress_log",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "idle_single_mode/end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "idle_single_mode/multi_race_reserve_deck",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "idle_single_mode/pre_start",
+    "bot_uses": false,
+    "captured": true
+   },
+   {
+    "path": "idle_single_mode/result",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "idle_single_mode/start",
+    "bot_uses": false,
+    "captured": true
+   },
+   {
+    "path": "idle_single_mode/status",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "item": [
+   {
+    "path": "item/check_aniv_shop",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "item/exchange",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "item/exchange_multi",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "item/manual_close",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "item/sell",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "item/show_exchange",
+    "bot_uses": false,
+    "captured": true
+   },
+   {
+    "path": "item/use_recovery_item",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "jukebox": [
+   {
+    "path": "jukebox/change_play_music",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "jukebox/change_random_request",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "jukebox/change_user_request",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "jukebox/draw_random_request",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "jukebox/exec_like",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "jukebox/history",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "jukebox/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "jukebox/play_user_request",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "kids_web_service": [
+   {
+    "path": "kids_web_service/get_email_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "kids_web_service/register_email_address",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "kids_web_service/request_register_email_address",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "kids_web_service/send_verification_url",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "legend_race": [
+   {
+    "path": "legend_race/get_reward_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "legend_race/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "legend_race/race_entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "legend_race/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "legend_race/recovery_ticket",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "legend_race/reflect_item_effect",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "legend_race/replay_check",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "legend_race/reset",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "legend_race/resume",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "live": [
+   {
+    "path": "live/live_start",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "live_theater": [
+   {
+    "path": "live_theater/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "live_theater/live_start",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "live_theater_performers_preset": [
+   {
+    "path": "live_theater_performers_preset/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "live_theater_performers_preset/update",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "load": [
+   {
+    "path": "load/index",
+    "bot_uses": true,
+    "captured": true
+   }
+  ],
+  "main_story": [
+   {
+    "path": "main_story/first_clear",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "main_story_race": [
+   {
+    "path": "main_story_race/get_entry_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "main_story_race/get_race_table",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "main_story_race/race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "main_story_race/race_start",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "map_event": [
+   {
+    "path": "map_event/ending_read",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "map_event/flavor_text_read",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "map_event/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "map_event/movie_trailer_dialog_read",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "map_event/point_exec",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "mission": [
+   {
+    "path": "mission/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "mission/receive",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "note": [
+   {
+    "path": "note/get_directory_card",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "note/get_new_chara_data",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "note/get_nickname_data",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "note/get_scenario_record",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "note/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "note/save_chara_data",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "note/save_note_data",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "note/save_voice",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "note/trainer_note",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "note/use_gallery_key",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "option": [
+   {
+    "path": "option/change_option",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "payment": [
+   {
+    "path": "payment/cancel",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "payment/finish",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "payment/get_coin_break_down_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "payment/item_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "payment/send_log",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "payment/start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "payment/steam_micro_txn_init",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "payment/update_birth",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "photo": [
+   {
+    "path": "photo/library",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "photo/set_activity",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "practice_race": [
+   {
+    "path": "practice_race/change_favorite_race",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/change_preset_name",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/create_partner_id",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/delete_partner",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/delete_race",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/get_follow_user_data",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/get_partner_id",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/get_partner_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/get_preset_array",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/get_saved_race_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/race_replay",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/save_partner",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/save_preset",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/search_partner",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "practice_race/used_history",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "pre_single_mode": [
+   {
+    "path": "pre_single_mode/friend_support_card_reload",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "pre_single_mode/index",
+    "bot_uses": true,
+    "captured": true
+   }
+  ],
+  "present": [
+   {
+    "path": "present/history",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "present/index",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "present/receive",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "present/receive_all",
+    "bot_uses": true,
+    "captured": false
+   }
+  ],
+  "raffle": [
+   {
+    "path": "raffle/activate",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "raffle/index",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "read_info": [
+   {
+    "path": "read_info/index",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "room_match": [
+   {
+    "path": "room_match/change_allow_display",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/change_lock_race_result",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/change_preset_name",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/create_room",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/create_room_simple",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/delete_race_result",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/destroy_room",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/edit_room",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/enter_waiting_room",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/entry_room",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/force_race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/get_entry_room_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/get_friend_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/get_preset_array",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/get_saved_race_result",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/get_saved_race_result_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/leave_room",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/leave_watching",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/polling",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/race_end_result",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/room_detail",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/room_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/room_search",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/save_preset",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "room_match/watch_room",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "serial_code": [
+   {
+    "path": "serial_code/register",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "single_mode": [
+   {
+    "path": "single_mode/change_running_style",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/change_short_cut",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/check_event",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/continue",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/exec_command",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/factor_lottery",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/factor_select",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/finish",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/gain_skills",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/get_choice_reward",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/load",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/minigame_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/multi_race_reserve",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/race_analyze",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/race_entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/race_out",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode/start",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "single_mode_free": [
+   {
+    "path": "single_mode_free/change_running_style",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/change_short_cut",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/check_event",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/continue",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/exec_command",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/factor_lottery",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/factor_select",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/finish",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/gain_skills",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/get_choice_reward",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/load",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/minigame_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/multi_item_exchange",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/multi_item_exchange_2",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/multi_item_use",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/multi_race_reserve",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/race_analyze",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/race_entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/race_out",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_free/start",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "single_mode_live": [
+   {
+    "path": "single_mode_live/change_running_style",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/change_short_cut",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/check_event",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/continue",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/exec_command",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/factor_lottery",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/factor_select",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/finish",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/gain_skills",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/get_choice_reward",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/live_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/load",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/lottery_square",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/master_square",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/minigame_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/multi_race_reserve",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/race_analyze",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/race_entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/race_out",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/reserve_square",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_live/start",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "single_mode_team": [
+   {
+    "path": "single_mode_team/change_running_style",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/change_short_cut",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/check_event",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/continue",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/exec_command",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/factor_lottery",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/factor_select",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/finish",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/gain_skills",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/get_choice_reward",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/load",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/minigame_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/multi_race_reserve",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/opponent_list",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/race_analyze",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/race_entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/race_out",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/save_team_edit_flag",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/team_edit",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/team_race_analyze",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/team_race_continue",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/team_race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/team_race_end_out",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/team_race_out",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_team/team_race_start",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "single_mode_venus": [
+   {
+    "path": "single_mode_venus/change_running_style",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/change_short_cut",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/check_event",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/continue",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/exec_command",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/factor_lottery",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/factor_select",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/finish",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/gain_skills",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/get_choice_reward",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/load",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/minigame_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/multi_race_reserve",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/race_analyze",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/race_entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/race_out",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/spirit_history",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/spirit_use",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/venus_race_continue",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/venus_race_end",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/venus_race_entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/venus_race_out",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "single_mode_venus/venus_race_start",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "story_event": [
+   {
+    "path": "story_event/announce",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "story_event/index",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "story_event/receive_mission",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "story_event/roulette",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "story_event/roulette_change_sheet",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "story_event/roulette_exec",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "story_event/story_clear",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "support_card": [
+   {
+    "path": "support_card/change_lock",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "support_card/get_support_card_event_skill",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "support_card/limit_break",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "support_card/limit_break_item",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "support_card/sell",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "support_card/strengthen",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "support_card_deck": [
+   {
+    "path": "support_card_deck/change_name",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "support_card_deck/change_party",
+    "bot_uses": false,
+    "captured": true
+   }
+  ],
+  "support_card_ranking": [
+   {
+    "path": "support_card_ranking/get_ranking",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "talk_gallery": [
+   {
+    "path": "talk_gallery/index",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "team_building": [
+   {
+    "path": "team_building/change_captain",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/change_running_style",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/change_team_name",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/get_ranking",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/make_team",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/opponent_array",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/opponent_array_special",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/race_continue",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/race_entry",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/race_result",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/race_start",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/recovery_ticket",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/resume",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/save_collection",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/scout",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_building/use_recovery_item",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "team_stadium": [
+   {
+    "path": "team_stadium/all_race_end",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "team_stadium/decide_frame_order",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "team_stadium/index",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "team_stadium/opponent_list",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "team_stadium/ranking",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_stadium/replay_check",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "team_stadium/start",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "team_stadium/team_edit",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "team_stadium/user_detail",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "tool": [
+   {
+    "path": "tool/device_attest",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "tool/get_pre_download_resource_version",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "tool/get_verify_token",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "tool/pre_signup",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "tool/send_log",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "tool/signup",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "tool/start_session",
+    "bot_uses": true,
+    "captured": true
+   },
+   {
+    "path": "tool/update_force_display_status",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "trained_chara": [
+   {
+    "path": "trained_chara/change_lock_multi",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "trained_chara/change_memo",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "trained_chara/change_nickname",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "trained_chara/get_succession_history_array",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "trained_chara/load",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "trained_chara/remove",
+    "bot_uses": true,
+    "captured": false
+   }
+  ],
+  "training_challenge": [
+   {
+    "path": "training_challenge/exam_select",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "training_challenge/get_ranking",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "training_challenge/index",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "transfer": [
+   {
+    "path": "transfer/detail",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "transfer/exec_multi",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "transfer/index",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "tutorial": [
+   {
+    "path": "tutorial/single_mode_finish",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "tutorial/skip",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "tutorial/team_edit",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "tutorial/update_step",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "user": [
+   {
+    "path": "user/change_card_dress",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/change_comment",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/change_dma_state",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/change_favorite_character",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/change_leader_card",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/change_name",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "user/change_practice_partner",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/change_sex",
+    "bot_uses": true,
+    "captured": false
+   },
+   {
+    "path": "user/change_story_favorite",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/change_support_card",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/get_profile_card_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/get_profile_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/get_trophy_detail",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/get_trophy_info",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/recovery_race_point",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/recovery_trainer_point",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/reset_all_card_dress",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/reset_card_dress",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/set_birth_day",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "user/set_profile_card_info",
+    "bot_uses": false,
+    "captured": false
+   }
+  ],
+  "valentine": [
+   {
+    "path": "valentine/index",
+    "bot_uses": false,
+    "captured": false
+   },
+   {
+    "path": "valentine/special",
+    "bot_uses": false,
+    "captured": false
+   }
+  ]
+ },
+ "not_game_server_sdk": [
+  "api/token",
+  "oauth2/token",
+  "iam/info",
+  "me/custom_update",
+  "me/permissions"
+ ]
+}

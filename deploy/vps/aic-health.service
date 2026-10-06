@@ -1,0 +1,43 @@
+# The wedged-state alert for the AIC farmer. Counterpart of umabot-health.service.
+#
+#   sudo cp deploy/aic-health.{service,timer} /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now aic-health.timer
+#
+# The failure this exists for does NOT make aic.service fail, so OnFailure= on that unit would
+# never fire: a 709 leaves the process running and the loop turning while every login dies. That
+# is why this is a timer polling the STATE rather than a hook on a transition.
+#
+# EXIT 1 WHEN WEDGED IS DELIBERATE. `systemctl is-failed aic-health` then carries the verdict
+# even if the webhook is the thing that is broken. Do not add SuccessExitStatus=1.
+#
+# Runs as the bot's own user and READS ONLY: the log AIC already writes, plus one unprivileged
+# `systemctl is-active` query. It gets no write path, and must never need one.
+[Unit]
+Description=Check whether the AIC idle farmer is wedged, and say so if it is
+Documentation=file:/opt/aic/scripts/health_alert.py
+
+[Service]
+Type=oneshot
+User=umabot
+Group=umabot
+WorkingDirectory=/opt/aic
+# Supplies UMA_ALERT_WEBHOOK (AIC_ALERT_WEBHOOK wins if you want a separate channel).
+EnvironmentFile=/etc/umabot.env
+
+# --stale-minutes must exceed the longest UNANNOUNCED silence. AIC announces every long sleep
+# before taking it -- a rotation slot, an idle career's next poll, the fan-cap wait -- and the
+# check treats those as healthy however old they are (up to one game-day). What is left is the
+# gap between two log lines with nothing announced, and 75 minutes clears a single-account
+# rotation's full 50-minute career with headroom.
+#
+# --log must name the profile aic.service runs. AIC_PROFILE=aic there -> state/aic/.
+ExecStart=/home/umabot/.venvs/aic/bin/python /opt/aic/scripts/health_alert.py \
+    --unit aic --log /opt/aic/state/aic/logs/aic.log --stale-minutes 75 --productive-hours 3
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+# read-only rather than true, for the same reason as aic.service: the interpreter is under $HOME.
+ProtectHome=read-only
+# No ReadWritePaths: this check writes nothing, anywhere. If it ever needs to, that is a
+# redesign, not a new path -- a health check that mutates state can cause the outage it reports.
