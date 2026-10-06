@@ -6,7 +6,7 @@ and acts on commands from YOU. Commands (case-insensitive, the whole message):
     !help                    this list
     !status                  service + health, today's visits / careers / failures
     !fans                    fans gained this game-day, per account + roster total
-    !ace                     today's Ace Runs per account (runs, aces, best rank score)
+    !ace                     this week's Ace Runs per account (runs, aces, best rank score)
     !team                    Team Trials today: battles, fans, current team score
     !club                    club phase (requests up / roster) and donations today
     !log [n]                 the last n log lines (default 15, max 30)
@@ -44,7 +44,7 @@ import subprocess
 import sys
 import time
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 AIC = Path(os.environ.get("AIC_HOME") or "/opt/aic")
@@ -342,24 +342,38 @@ def fans_text(now: float | None = None) -> str:
             f"```\n{body}\n```")
 
 
-def ace_text(now: float | None = None, rows=None) -> str:
+def ace_period(now: float | None = None) -> str:
+    """aic.ace.period_key: the ISO week of the game-day (Monday 15:00 UTC reset),
+    or the game-day itself with AIC_ACE_PERIOD=day."""
     day = game_day(now)
+    if (env_value("AIC_ACE_PERIOD") or "week").strip().lower() == "day":
+        return day
+    y, w, _ = date.fromisoformat(day).isocalendar()
+    return f"{y}-W{w:02d}"
+
+
+def ace_text(now: float | None = None, rows=None) -> str:
+    period = ace_period(now)
+    try:
+        target = int(env_value("AIC_ACE_RUNS") or 5)
+    except ValueError:
+        target = 5
     st = read_json(state_dir() / "ace_state.json", {}) or {}
     nm = names()
     once = {v: int(a.get("ace_once") or 0) for a in roster() if (v := _vid(a)) and a.get("ace_once")}
     done = read_json(state_dir() / "ace_once.json", {}) or {}
     out = []
     for vid, rec in sorted(st.items(), key=lambda kv: str(nm.get(int(kv[0]), kv[0]))):
-        if not isinstance(rec, dict) or rec.get("day") != day:
+        if not isinstance(rec, dict) or rec.get("period") != period:
             continue
         runs = (f"one-time {int(done.get(str(vid)) or 0)}/{once[int(vid)]} done" if int(vid) in once
-                else f"runs {rec.get('started', 0)}/3")
+                else f"runs {rec.get('started', 0)}/{target}")
         out.append(f"{str(nm.get(int(vid), vid)):<18} {runs}  aces {rec.get('good', 0)}"
                    f"  best {int(rec.get('best') or 0):>6,}{'  (running)' if rec.get('running') else ''}")
     rows = today_lines(now) if rows is None else rows
     picks = [(a, re.sub(r".*Ace Run trainee: ", "", m)) for a, _, m in _by_account(rows)
              if "Ace Run trainee:" in m][-5:]
-    text = f"**Ace Runs, game-day {day}**\n```\n" + ("\n".join(out) or "none yet") + "\n```"
+    text = f"**Ace Runs, {period}** (resets Monday 15:00 UTC)\n```\n" + ("\n".join(out) or "none yet") + "\n```"
     if picks:
         text += "Latest picks:\n" + "\n".join(f"- {a}: {p[:110]}" for a, p in picks)
     return text
@@ -572,7 +586,7 @@ HELP = """**AIC farm bot**
 **Reports**
 `!status` - is the farm running, today's visits, careers, failures
 `!fans` - fans gained today, per account
-`!ace` - today's Ace Runs (runs, aces, best score)
+`!ace` - this week's Ace Runs (runs, aces, best score)
 `!team` - Team Trials today (battles, fans, team score)
 `!club` - club phase and today's donations
 `!log` or `!log 30` - the latest log lines (max 30)

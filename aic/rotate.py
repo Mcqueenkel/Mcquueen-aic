@@ -433,7 +433,7 @@ def visit(settings: Settings, spec, target: RosterAccount, *,
                         "selection choose instead.", target.trainee, target.label,
                         note or "it could not be resolved")
 
-    # Ace Run (aic.ace): 3 a day after the reset - Grand Live, no race schedule,
+    # Ace Run (aic.ace): 5 a week from Monday's reset - Grand Live, no race schedule,
     # borrowed Light Hello, skills bought at the finish, and a trainee who is NOT
     # on the Team Trials team yet (the roster's trainee is for fan careers).
     want_ace = ace.wanted(settings, viewer, once=target.ace_once)
@@ -467,13 +467,17 @@ def visit(settings: Settings, spec, target: RosterAccount, *,
             log.info("One-time Ace Run %s/%s for %s.", ace.once_done(settings, viewer) + 1,
                      target.ace_once, target.label)
         else:
-            log.info("Ace Run %s/%s today for %s (%s ace(s) so far).",
-                     q["started"] + 1, ace.RUNS, target.label, q["good"])
+            log.info("Ace Run %s/%s %s for %s (%s ace(s) so far).",
+                     q["started"] + 1, ace.RUNS, ace.PER, target.label, q["good"])
         scenario_id, extra_races, race_goal = ace.SCENARIO, None, 0
         try:
-            card, why = ace.pick_trainee(settings, viewer,
-                                         session.load_index or session.refresh_home(),
-                                         exclude=just_aced)
+            idx = session.load_index or session.refresh_home()
+            card, why = ace.pick_trainee(settings, viewer, idx, exclude=just_aced)
+            if not card:
+                # every off-team uma already had its Ace Run this week: run one
+                # of them again rather than an uma that is on the team
+                card, why = ace.pick_trainee(settings, viewer, idx, exclude=just_aced,
+                                             reuse_week=True)
         except Exception as exc:  # noqa: BLE001 - the roster trainee still works
             card, why = 0, ""
             log.warning("Could not choose an Ace Run trainee (%s); using the roster's.", exc)
