@@ -1,0 +1,30 @@
+{
+  "_comment": [
+    "OVERRIDES ONLY. The Independent ('idle single mode') protocol is built in;",
+    "see aic/independent.py. This file exists so a server-side change can be",
+    "absorbed without editing code. Every key here is optional.",
+    "",
+    "Built-in defaults:",
+    "  endpoints.pre_start          idle_single_mode/pre_start",
+    "  endpoints.start              idle_single_mode/start",
+    "  endpoints.check_progress_log idle_single_mode/check_progress_log",
+    "  endpoints.end                idle_single_mode/end",
+    "  use_tp                       15",
+    "",
+    "  endpoints  name -> full path, replacing the default.",
+    "  payloads   name -> object merged into that endpoint's request body.",
+    "  use_tp     TP spent by idle_single_mode/start.",
+    "",
+    "The training schedule is NOT set here - by default it is read live from",
+    "pre_start (the account's last-used policy + its saved race agendas).",
+    "To override it, pass a JSON file to --schedule with any of:",
+    "  training_policy_ground_type          1 turf, 2 dirt",
+    "  training_policy_param_rate_set_id    stat-weighting preset id",
+    "  priority_skill_array                 [{\"priority\": 1, \"skill_id\": 201601}, ...]",
+    "  race_array                           [{\"year\": 1, \"program_id\": 624}, ...]",
+    "Fields you omit keep their live default."
+  ],
+
+  "endpoints": {},
+  "payloads": {}
+}

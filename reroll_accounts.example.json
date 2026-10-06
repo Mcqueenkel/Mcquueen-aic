@@ -1,0 +1,26 @@
+{
+  "_comment": [
+    "Roster for `rotate.bat`. Copy to reroll_accounts.json and fill in.",
+    "",
+    "Visits are spaced career_minutes / len(accounts) apart, so every account",
+    "is revisited exactly as its own idle career finishes:",
+    "   5 accounts -> a visit every 10 minutes",
+    "  20 accounts -> a visit every 2.5 minutes",
+    "",
+    "trainer_id may be spaced, dashed or plain. password is the account's",
+    "Link Password (Data Link), which is also what recovers it after a logout.",
+    "",
+    "`rotate.bat init` generates this from the accounts already recorded in",
+    "state/accounts.json.",
+    "",
+    "This file holds recovery credentials in plain text - keep it out of any",
+    "repository (.gitignore already covers reroll_accounts.json)."
+  ],
+
+  "career_minutes": 50,
+
+  "accounts": [
+    { "trainer_id": "103 444 444 441", "password": "ChangeMe2026", "name": "alpha" },
+    { "trainer_id": "102 222 222 220", "password": "ChangeMe2026", "name": "beta" }
+  ]
+}
