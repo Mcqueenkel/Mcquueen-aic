@@ -100,7 +100,8 @@ def farm(tmp: Path, today: str, now: float) -> None:
     json.dump({"111": {"day": today, "baseline": 1000, "latest": 2_001_000},
                "222": {"day": today, "baseline": 0, "latest": 500_000},
                "333": {"day": "2000-01-01", "baseline": 0, "latest": 9}}, open(s / "fan_day.json", "w"))
-    json.dump({"111": {"day": today, "started": 2, "good": 1, "best": 17303, "running": True}},
+    week = "%d-W%02d" % bot.date.fromisoformat(today).isocalendar()[:2]
+    json.dump({"111": {"period": week, "started": 2, "good": 1, "best": 17303, "running": True}},
               open(s / "ace_state.json", "w"))
     json.dump({"day": today, "requested": [111, 222]}, open(s / "club_state.json", "w"))
     at = lambda minutes: bot.datetime.fromtimestamp(now + minutes * 60).strftime("%Y-%m-%d %H:%M:%S")
@@ -137,7 +138,7 @@ def test_reports() -> None:
         check("fans: only today's rows, named, totalled", "2,500,000 across 2 accounts" in fans
               and "McKing" in fans and "Oguri_0222" in fans and "333" not in fans, fans)
         ace = bot.ace_text(now)
-        check("ace: runs/aces/best + latest pick", "runs 2/3" in ace and "17,303" in ace
+        check("ace: this week's runs/aces/best + latest pick", "runs 2/5" in ace and "2026-W40" in ace and "17,303" in ace
               and "(running)" in ace and "card 100701" in ace, ace)
         team = bot.team_text(now)
         check("team: battles, fans and score per account", "battles  5" in team and "86,042" in team, team)

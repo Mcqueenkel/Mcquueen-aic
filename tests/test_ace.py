@@ -1,8 +1,8 @@
 """Ace Run: the per-day count, and borrowing one named support card.
 
 aic.ace decides whether an account's next career is an Ace Run (Grand
-Live, no races, borrowed Light Hello, skills bought): exactly RUNS (3) per
-game-day after the 15:00 UTC reset; flow.borrow_card finds the wanted card,
+Live, no races, borrowed Light Hello, skills bought): exactly RUNS (5) per
+week (Monday 15:00 UTC reset); flow.borrow_card finds the wanted card,
 refreshing the offer list the way the real client does.
 """
 
@@ -45,47 +45,59 @@ def _env(**kv):
 
 
 def test_daily_count() -> None:
-    print("ace run: exactly RUNS (3) a day after the 15:00 UTC reset, whatever the rank")
+    print("ace run: exactly RUNS (5) a WEEK, the week starting with Monday's game-day")
     s, v = _settings(), 111
     _env()
     check("off unless AIC_ACE", ace.wanted(s, v) is False)
     _env(AIC_ACE=1, AIC_ACE_ONLY=222)
     check("AIC_ACE_ONLY skips other accounts", ace.wanted(s, v) is False)
     _env(AIC_ACE=1)
-    check("3 runs a day by default", ace.RUNS == 3)
-    t = ts("2026-10-02 16:00")
-    for n, score in enumerate((ace.MIN_SCORE - 1, 5_000, 20_000), 1):
+    check("5 runs a week by default", ace.RUNS == 5 and ace.PERIOD == "week")
+    check("the week turns at Monday 15:00 UTC (Monday's game-day)",
+          ace.period_key(ts("2026-10-05 14:59")) == "2026-W40"
+          and ace.period_key(ts("2026-10-05 15:00")) == "2026-W41"
+          and ace.period_key(ts("2026-10-12 14:59")) == "2026-W41")
+    t = ts("2026-10-05 16:00")                   # Monday, just after the weekly reset
+    for n, score in enumerate((ace.MIN_SCORE - 1, 5_000, 20_000, 15_000, 9_000), 1):
         check(f"run {n}: still wanted", ace.wanted(s, v, t))
         ace.record_start(s, v, t)
         check("a started Ace Run is flagged running", ace.is_running(s, v))
         ace.record_finish(s, v, {"rank_score": score}, t)
         check("finishing clears the flag", not ace.is_running(s, v))
     rec = ace.status(s, v, t)
-    check("3 runs, 1 ace, best kept", (rec["started"], rec["good"], rec["best"]) == (3, 1, 20_000),
+    check("5 runs, 2 aces, best kept", (rec["started"], rec["good"], rec["best"]) == (5, 2, 20_000),
           str(rec))
-    check("3 runs done -> fan farming, even with only 1 ace", not ace.wanted(s, v, t))
-    check("still done just before the reset", not ace.wanted(s, v, ts("2026-10-03 14:59")))
-    check("the 15:00 UTC reset starts 3 more", ace.wanted(s, v, ts("2026-10-03 15:01")))
+    check("5 done -> fan farming", not ace.wanted(s, v, t))
+    check("still done on the daily resets that follow (Tuesday .. Sunday)",
+          not any(ace.wanted(s, v, ts(f"2026-10-{d:02d} 16:00")) for d in range(6, 12)))
+    check("still done just before Monday's reset", not ace.wanted(s, v, ts("2026-10-12 14:59")))
+    check("Monday 15:00 UTC starts 5 more", ace.wanted(s, v, ts("2026-10-12 15:01")))
 
 
 def test_running_survives_reset() -> None:
-    print("ace run: a career started before the reset is still counted after it")
+    print("ace run: a career started before the weekly reset is still counted after it")
     _env(AIC_ACE=1)
     s, v = _settings(), 111
-    ace.record_start(s, v, ts("2026-10-02 14:30"))
-    check("still running across 15:00", ace.is_running(s, v))
-    rec = ace.record_finish(s, v, {"rank_score": 16_000}, ts("2026-10-02 15:20"))
-    check("counted on the new day", rec["good"] == 1 and rec["day"] == "2026-10-02", str(rec))
+    ace.record_start(s, v, ts("2026-10-05 14:30"))      # last game-day of week 40
+    check("still running across Monday 15:00", ace.is_running(s, v))
+    rec = ace.record_finish(s, v, {"rank_score": 16_000}, ts("2026-10-05 15:20"))
+    check("counted in the new week", rec["good"] == 1 and rec["period"] == "2026-W41", str(rec))
+    check("...which still has all 5 runs to do", rec["started"] == 0
+          and ace.wanted(s, v, ts("2026-10-05 15:21")), str(rec))
 
 
 def test_caps() -> None:
-    print("ace run: failed starts hand the day back to fan farming")
+    print("ace run: failed starts park the account until the next DAILY reset, not the week")
     _env(AIC_ACE=1)
-    v, t = 111, ts("2026-10-02 16:00")
+    v, t = 111, ts("2026-10-06 16:00")
     s2 = _settings()
+    ace.record_start(s2, v, t)
+    ace.record_finish(s2, v, {"rank_score": 15_000}, t)
     for _ in range(ace.MAX_FAILED_STARTS):
         ace.record_failed_start(s2, v, t)
     check(f"{ace.MAX_FAILED_STARTS} failed starts -> stop for the day", not ace.wanted(s2, v, t))
+    check("...back the next game-day, same week, run count kept",
+          ace.wanted(s2, v, ts("2026-10-07 15:30")) and ace.status(s2, v, ts("2026-10-07 15:30"))["started"] == 1)
     check("junk summary counts as a try, not a crash",
           ace.record_finish(_settings(), v, None, t)["good"] == 0)
 
@@ -104,8 +116,7 @@ def test_one_time_job() -> None:
         check("not retired while a run is in flight", not rotate._once_finished(s, acc))
         ace.record_finish(s, v, {"rank_score": 15_000}, t)
         ace.record_once_finish(s, v)
-    check("past the daily 3, a one-time job keeps going", ace.wanted(s, v, t, once=5)
-          and not ace.wanted(s, v, t))
+    check("a one-time job counts its own finished runs", ace.wanted(s, v, t, once=5))
     t2 = ts("2026-10-06 15:30")                  # after the next reset
     check("the count survives the reset (its own file)", ace.once_done(s, v) == 3)
     for _ in range(2):
@@ -219,16 +230,25 @@ def test_pick_trainee() -> None:
         check("never an unstartable trainee", card != 102201, str(card))
         check("an open slot beats nothing: a full-score pick", card in (101401, 101101, 101201)
               and "open" in why, f"{card} {why}")
-        # used for an Ace Run today -> not again today
+        # used for an Ace Run this week -> not again this week
         ace.record_start(s, v, t, chara=card // 100)
         card2, _ = ace.pick_trainee(s, v, index, t, apts=apts)
-        check("not the same uma twice in one day", card2 // 100 != card // 100 and card2, str(card2))
-        check("today's umas are remembered", card // 100 in ace.status(s, v, t)["charas"])
-        check("...and forgotten at the reset",
-              ace.status(s, v, ts("2026-10-03 15:01")).get("charas") in (None, []))
+        check("not the same uma twice in one week", card2 // 100 != card // 100 and card2, str(card2))
+        check("this week's umas are remembered, across the daily resets",
+              card // 100 in ace.status(s, v, t)["charas"]
+              and card // 100 in ace.status(s, v, t + 2 * 86400)["charas"])
+        check("...and forgotten at Monday's reset",
+              ace.status(s, v, ts("2026-10-05 15:01")).get("charas") in (None, []))
         # everyone owned is on the team or used -> no pick (roster trainee is used)
         index2 = {**index, "card_list": [{"card_id": 100601}]}
         check("nothing eligible -> (0, '')", ace.pick_trainee(s, v, index2, t, apts=apts) == (0, ""))
+        # only this week's Ace-Run uma is left off the team -> reuse it, never an on-team one
+        index3 = {**index, "card_list": [{"card_id": 100601}, {"card_id": card}]}
+        check("week used up -> no pick by default",
+              ace.pick_trainee(s, v, index3, t, apts=apts) == (0, ""))
+        again, _ = ace.pick_trainee(s, v, index3, t, apts=apts, reuse_week=True)
+        check("...reuse_week runs this week's uma again, not the on-team Oguri",
+              again == card, f"{again} vs {card}")
     finally:
         sel.UNSTARTABLE_CHARAS.clear()
         sel.UNSTARTABLE_CHARAS.update(real)

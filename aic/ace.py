@@ -1,14 +1,14 @@
-"""Ace Run: S-rank Grand Live trainees for Team Trials, a few a day.
+"""Ace Run: S-rank Grand Live trainees for Team Trials, a few a week.
 
-Each game-day, after the 15:00 UTC reset, an account does exactly ``RUNS`` (3)
-Ace Runs, whatever rank they reach, then goes back to fan farming for the rest of
-the day. A finish at ``rank_score >= MIN_SCORE`` (14,500 = S, master.mdb
+Each week (from Monday's game-day, i.e. Monday 15:00 UTC) an account does
+exactly ``RUNS`` (5) Ace Runs, whatever rank they reach, then goes back to fan
+farming for the rest of the week (``AIC_ACE_PERIOD=day``: RUNS every game-day). A finish at ``rank_score >= MIN_SCORE`` (14,500 = S, master.mdb
 single_mode_rank id 15) is counted and logged as an "ace", but does not change
 how many runs are done. An Ace Run is the same idle (Auto Training) career aic
 always runs, with four changes:
 
 * the trainee is a character NOT on the account's Team Trials team (and not
-  already Ace-Run today) - the one whose aptitudes would add the most to the
+  already Ace-Run this week) - the one whose aptitudes would add the most to the
   team (:func:`pick_trainee`), since a team fields each character only once;
 * scenario ``SCENARIO`` (3, Grand Live), chosen only if the account has it;
 * no race schedule - only the career's own goal races, so every other turn
@@ -32,6 +32,7 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 
@@ -53,8 +54,13 @@ def _int(name: str, default: int) -> int:
 
 
 SCENARIO = _int("AIC_ACE_SCENARIO", 3)
-#: Ace Runs per account per game-day - then fan farming until the reset.
-RUNS = _int("AIC_ACE_RUNS", 3)
+#: Ace Runs per account per PERIOD - then fan farming until the next one.
+RUNS = _int("AIC_ACE_RUNS", 5)
+#: "week" (default): RUNS a week, resetting with Monday's game-day (Monday 15:00
+#: UTC). "day": RUNS every game-day, the old behaviour.
+PERIOD = (os.environ.get("AIC_ACE_PERIOD") or "week").strip().lower()
+#: For log lines: "this week" / "today".
+PER = "today" if PERIOD == "day" else "this week"
 #: An "ace" finish, for the count and the log only.
 MIN_SCORE = _int("AIC_ACE_MIN_SCORE", 14_500)
 FRIEND_CARD = _int("AIC_ACE_FRIEND_CARD", 30052)
@@ -93,16 +99,31 @@ def _save(settings: Settings, state: dict) -> None:
         log.warning("could not write %s (%s)", p.name, exc)
 
 
-def _today(state: dict, viewer_id: int, now: float | None = None) -> dict:
-    """This account's record for the current game-day. ``running`` (an Ace Run
-    is in flight) survives the reset: a career started before 15:00 UTC still
-    has to be counted - and get its skills bought - when it ends after."""
-    rec = state.setdefault(str(viewer_id), {})
+def period_key(now: float | None = None) -> str:
+    """The Ace Run period a moment belongs to: the ISO week of its game-day, so a
+    new week starts with Monday's game-day (Monday 15:00 UTC, the daily reset
+    hour). ``AIC_ACE_PERIOD=day`` goes back to one per game-day."""
     day = day_key(now)
-    if rec.get("day") != day:
+    if PERIOD == "day":
+        return day
+    y, w, _ = date.fromisoformat(day).isocalendar()
+    return f"{y}-W{w:02d}"
+
+
+def _today(state: dict, viewer_id: int, now: float | None = None) -> dict:
+    """This account's record for the current period (week). ``running`` (an Ace
+    Run is in flight) survives the reset: a career started before it still has to
+    be counted - and get its skills bought - when it ends after. ``failed`` counts
+    per GAME-DAY, so a bad day parks the account until the next daily reset, not
+    for the rest of the week."""
+    rec = state.setdefault(str(viewer_id), {})
+    period, day = period_key(now), day_key(now)
+    if rec.get("period") != period:
         running = bool(rec.get("running"))
         rec.clear()
-        rec.update(day=day, started=0, good=0, best=0, running=running)
+        rec.update(period=period, started=0, good=0, best=0, running=running)
+    if rec.get("failed_day") != day:
+        rec["failed_day"], rec["failed"] = day, 0
     return rec
 
 
@@ -213,11 +234,11 @@ def card_aptitudes(mdb_path=None) -> dict[int, dict]:
 
 def pick_trainee(settings: Settings, viewer_id: int, load_index: dict,
                  now: float | None = None, apts: dict | None = None,
-                 exclude=()) -> tuple[int, str]:
+                 exclude=(), reuse_week: bool = False) -> tuple[int, str]:
     """The owned trainee card whose Ace Run would strengthen Team Trials most.
 
     Never a character already on the team (a team fields each uma once, so
-    another copy adds nothing), one already Ace-Run today, one in ``exclude``
+    another copy adds nothing), one already Ace-Run this week, one in ``exclude``
     (the Ace Run that just ended this visit - not on the team YET, since the
     team chore runs at the start of a visit), or one that cannot start an idle
     career (selection.unstartable_reason). Characters that already HAVE an ace
@@ -248,8 +269,8 @@ def pick_trainee(settings: Settings, viewer_id: int, load_index: dict,
         on_team.add(int(c.get("card_id") or 0) // 100)
         style = int(slot.get("running_style") or 0) or best_style(c)
         members[dist].append(member_point(c, dist, style))
-    skip = (set(status(settings, viewer_id, now).get("charas") or [])
-            | {int(u) for u in exclude} | on_team)
+    week = set() if reuse_week else set(status(settings, viewer_id, now).get("charas") or [])
+    skip = week | {int(u) for u in exclude} | on_team
     has_ace = {int(c.get("card_id") or 0) // 100 for c in trained.values()
                if not c.get("owner_viewer_id")
                and int(c.get("rank_score") or 0) >= MIN_SCORE}
@@ -310,8 +331,8 @@ def record_finish(settings: Settings, viewer_id: int, summary: dict,
     if score >= MIN_SCORE:
         rec["good"] += 1
     _save(settings, state)
-    log.info("Ace Run finished: rank_score %s (%s) - %s/%s runs today, %s ace(s), "
+    log.info("Ace Run finished: rank_score %s (%s) - %s/%s runs %s, %s ace(s), "
              "best %s.", f"{score:,}",
              "ACE" if score >= MIN_SCORE else f"below {MIN_SCORE:,}",
-             rec["started"], RUNS, rec["good"], f"{rec['best']:,}")
+             rec["started"], RUNS, PER, rec["good"], f"{rec['best']:,}")
     return dict(rec)

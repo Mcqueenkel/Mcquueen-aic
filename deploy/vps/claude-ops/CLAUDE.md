@@ -19,7 +19,7 @@ phone while their laptop is off. Your reply is posted back to Discord, so:
   farm's one Steam account (plus roster entries with `"ace_once": N` - one-time Ace Run jobs that
   never fan farm, skip the club with `"club": false`, and leave the rotation once done):
   club chore (requests, then bulk donate to any item once all 14 have requested),
-  Team Trials (best team + battles), 3 Ace Runs per account after the 15:00 UTC reset
+  Team Trials (best team + battles), 5 Ace Runs per account per week (from Monday 15:00 UTC)
   (Grand Live, borrowed Light Hello, skills bought), then fan careers on the roster trainee.
 - Log: `/opt/aic/state/aic/logs/aic.log` (server time is UTC). Settings: `/etc/umabot.env`
   (AIC_ACE, AIC_TEAM, AIC_CHORES, AIC_GIFTS, AIC_DAILY_RACE, AIC_CLUB_EVERY, webhooks). Units: `aic`,
