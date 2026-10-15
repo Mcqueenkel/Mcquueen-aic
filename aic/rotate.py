@@ -25,6 +25,9 @@ for the whole rotation, so one login covers every switch (see :mod:`aic.steam`).
 from __future__ import annotations
 
 import json
+import os
+import random
+import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -57,6 +60,29 @@ RETRY_SECONDS = 300.0
 MAX_RETRY_SECONDS = 3600.0
 #: Failed visits in a row after which a one-time Ace Run account is parked.
 ONCE_MAX_FAILURES = 3
+
+
+def _jitter_range() -> tuple[float, float]:
+    """AIC_VISIT_JITTER_MIN / _MAX (minutes, default 5 / 20); 0 / 0 turns it off."""
+    def minutes(name, default):
+        try:
+            return max(0.0, float(os.environ.get(name) or default))
+        except ValueError:
+            return float(default)
+    lo, hi = minutes("AIC_VISIT_JITTER_MIN", 5), minutes("AIC_VISIT_JITTER_MAX", 20)
+    return lo * 60, max(lo, hi) * 60
+
+
+#: A random wait added once an account's career is due, before it is visited, so
+#: visits never fall on a fixed career-length rhythm (seen from outside, e.g.
+#: uma.moe activity, a 50-minute metronome per account). Costs throughput: the
+#: average cycle grows by the midpoint (12.5 min on the 5-20 default).
+VISIT_JITTER_SECONDS = _jitter_range()
+
+
+def _visit_jitter() -> float:
+    lo, hi = VISIT_JITTER_SECONDS
+    return random.uniform(lo, hi) if hi > 0 else 0.0
 
 
 class RotationError(RuntimeError):
@@ -283,6 +309,8 @@ def _ensure_bound(settings: Settings, target: RosterAccount, log_) -> None:
     try:
         current = int(flow.connect(settings).viewer_id or 0)
     except Exception as exc:  # noqa: BLE001 - an unlinked slot fails to log in
+        if _version_lockout(exc):
+            raise                        # the game wants a newer client: no slot switch
         log_.debug("no usable session (%s); treating the slot as free", exc)
 
     if current == target.trainer_id:
@@ -325,6 +353,11 @@ def _ensure_bound(settings: Settings, target: RosterAccount, log_) -> None:
     # 793593252166 joined the roster already called "McDonald" - the same name
     # 768270152387 answers to.
     acct.login_with_link(settings, target.trainer_id, target.password)
+
+
+def _version_lockout(exc) -> bool:
+    """A visit failed because the game wants a newer client (result code 204)."""
+    return re.search(r"API error 204\b", str(exc)) is not None
 
 
 def _once_finished(settings: Settings, account: RosterAccount) -> bool:
@@ -666,6 +699,9 @@ def run(settings: Settings, spec, accounts: list[RosterAccount], *,
                      careerclock.describe(settings, a.trainer_id, store))
 
     visits_made = {a.trainer_id: 0 for a in accounts}
+    version_switched = False
+    #: accounts whose last visit failed on a 204 - released at once on a switch
+    locked_out: set[int] = set()
     #: Consecutive failures per account, for the backoff below.
     failed_runs = {a.trainer_id: 0 for a in accounts}
     #: Nothing is visited sooner than this. A burst of overdue accounts (every
@@ -716,12 +752,21 @@ def run(settings: Settings, spec, accounts: list[RosterAccount], *,
             # A 391 is the held Steam ticket being cancelled. Without dropping
             # the session here the next visit sends the same dead ticket, and so
             # does every visit after it - forever.
-            from .auth import note_dead_ticket
+            from .auth import note_dead_ticket, refresh_app_version
             note_dead_ticket(exc)
+            # 204 = the game shipped a client update and refuses our app_ver:
+            # read the new version off Steam and switch to it (rate-limited).
+            if _version_lockout(exc):
+                locked_out.add(target.trainer_id)
+                try:
+                    version_switched = bool(refresh_app_version(settings))
+                except Exception as vexc:  # noqa: BLE001 - must never end the run
+                    log.warning("game version check failed (%s)", vexc)
             log.error("Continuing with the next account.")
             result = VisitResult(account=target, ok=False, source="failed",
                                  note=str(exc)[:200])
         else:
+            locked_out.discard(target.trainer_id)
             if result.started:
                 state.started_careers += 1
         failed_runs[target.trainer_id] = (
@@ -789,14 +834,27 @@ def run(settings: Settings, spec, accounts: list[RosterAccount], *,
             # server answering "0 seconds left" would otherwise put it due in
             # FINISH_GRACE, and the rotation would hammer a full account switch
             # every 30 seconds against the live API.
-            due[target.trainer_id] = max(recorded, time.time() + MIN_INTERVAL_SECONDS)
-            log.info("%s next due in %s.", target.label,
-                     format_duration(max(0.0, due[target.trainer_id] - time.time())))
+            wait = _visit_jitter()
+            due[target.trainer_id] = max(recorded, time.time() + MIN_INTERVAL_SECONDS) + wait
+            log.info("%s next due in %s (incl. %s random wait).", target.label,
+                     format_duration(max(0.0, due[target.trainer_id] - time.time())),
+                     format_duration(wait))
         else:
             # Something happened but no clock came back. Assume a full career
             # rather than hammering; the next visit measures it properly.
             # Succeeded but returned no clock: assume a full career rather than
             # hammering. The next visit measures it properly.
-            due[target.trainer_id] = time.time() + career_minutes * 60 + careerclock.FINISH_GRACE
+            due[target.trainer_id] = (time.time() + career_minutes * 60 + careerclock.FINISH_GRACE
+                                      + _visit_jitter())
         if _once_finished(settings, target):
             due[target.trainer_id] = float("inf")     # its one-time Ace Runs are done
+        if version_switched:
+            # Every account the old version locked out goes again now, instead of
+            # sitting out its failure backoff (up to MAX_RETRY_SECONDS).
+            version_switched = False
+            for a in accounts:
+                if a.trainer_id in locked_out and not _once_finished(settings, a):
+                    failed_runs[a.trainer_id] = 0
+                    due[a.trainer_id] = time.time()
+            locked_out.clear()
+            log.info("Retrying every locked-out account now, on the new client version.")
