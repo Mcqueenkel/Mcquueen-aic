@@ -119,6 +119,101 @@ client.on("loggedOn", () => {
 """
 
 
+#: Read-only: the game version Steam ships right now. Newest public manifest of the
+#: game's depot -> download just UmamusumePrettyDerby_Data/globalgamemanagers
+#: (~41 MB) -> its length-prefixed "x.y.z" bundleVersion (exactly one such string:
+#: "1.35.2" when 1.35.2 shipped). Its OWN logonID - a second session with the
+#: farm's (default) one would kick the live ticket session off Steam. PROVED on
+#: the VPS 2026-10-07: 7 s, the farm's session untouched.
+VERSION_JS = r"""
+const SteamUser = require("steam-user");
+function out(o) { process.stdout.write(JSON.stringify(o) + "\n"); }
+const appid = 3224770;
+const client = new SteamUser({ autoRelogin: false });
+let done = false;
+const finish = (code, o) => {
+  if (done) return; done = true;
+  if (o) out(o);
+  try { client.logOff(); } catch (e) {}
+  setTimeout(() => process.exit(code), 800);
+};
+setTimeout(() => finish(1, { type: "error", message: "timeout" }), 300000);
+client.on("error", (e) => finish(1, { type: "error", message: String(e && e.message || e) }));
+client.logOn({ refreshToken: process.env.STEAM_REFRESH_TOKEN,
+               logonID: 0x51A0000 + Math.floor(Math.random() * 0xFFFF) });
+client.on("loggedOn", async () => {
+  try {
+    const { apps } = await client.getProductInfo([appid], [], true);
+    const depots = (apps[appid] && apps[appid].appinfo && apps[appid].appinfo.depots) || {};
+    for (const [id, d] of Object.entries(depots)) {
+      if (!/^\d+$/.test(id) || !d || !d.manifests || !d.manifests.public) continue;
+      const pub = d.manifests.public;
+      const gid = typeof pub === "object" ? pub.gid : pub;
+      const { manifest } = await client.getManifest(appid, +id, gid, "public");
+      const file = manifest.files.find(f => /(^|[\\/])UmamusumePrettyDerby_Data[\\/]globalgamemanagers$/i.test(f.filename));
+      if (!file) continue;
+      const res = await client.downloadFile(appid, +id, file);
+      const s = (Buffer.isBuffer(res) ? res : res.file).toString("latin1");
+      const re = /([\x05-\x0b])\x00\x00\x00(\d{1,3}\.\d{1,3}\.\d{1,3})/g;
+      const found = new Set();
+      let m;
+      while ((m = re.exec(s))) if (m[1].charCodeAt(0) === m[2].length) found.add(m[2]);
+      return finish(0, { type: "version", versions: [...found], manifest: String(gid) });
+    }
+    finish(1, { type: "error", message: "no depot carries globalgamemanagers" });
+  } catch (e) {
+    finish(1, { type: "error", message: String(e && e.message || e).slice(0, 300) });
+  }
+});
+"""
+
+
+def parse_version_output(text: str) -> str | None:
+    """The one version VERSION_JS printed, or None (an error, or not exactly one)."""
+    for line in (text or "").splitlines():
+        try:
+            o = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(o, dict):
+            continue
+        if o.get("type") == "error":
+            log.warning("game version check failed: %s", o.get("message"))
+            return None
+        if o.get("type") == "version":
+            vs = [v for v in o.get("versions") or [] if isinstance(v, str)
+                  and all(p.isdigit() for p in v.split(".")) and v.count(".") == 2]
+            if len(vs) == 1:
+                return vs[0]
+            log.warning("game version check: expected one version, found %s", vs)
+            return None
+    return None
+
+
+def latest_game_version(node_dir: Path, cfg: dict, timeout: float = 360) -> str | None:
+    """The game version Steam ships now, read with the account's refresh token
+    (env, not argv). None when it cannot be read. Never raises."""
+    token = cfg.get("steam_refresh_token") or ""
+    if not token:
+        log.warning("game version check skipped: no stored Steam refresh token")
+        return None
+    try:
+        p = subprocess.run(["node", "-e", VERSION_JS], cwd=str(node_dir), capture_output=True,
+                           text=True, timeout=timeout,
+                           env={**os.environ, "STEAM_REFRESH_TOKEN": str(token)})
+    except Exception as exc:  # noqa: BLE001
+        log.warning("game version check failed: %s", type(exc).__name__)
+        return None
+    if "ratelimit" in (p.stdout or "").lower():
+        log.warning("game version check: Steam rate-limited the login")
+        return "ratelimit"
+    found = parse_version_output(p.stdout)
+    if found is None and '"type"' not in (p.stdout or ""):
+        log.warning("game version check: node exited %s without an answer (%s)",
+                    p.returncode, (p.stderr or "").strip()[-200:])
+    return found
+
+
 class SteamGuardRequired(RuntimeError):
     """Steam wants a 2FA code and there is no way to supply one."""
 

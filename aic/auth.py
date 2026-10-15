@@ -119,6 +119,67 @@ def load_auth_config(settings: Settings, missing_ok: bool = False) -> dict:
     return cfg
 
 
+#: After a 204 ("the client needs updating"), Steam is asked for the shipped game
+#: version at most this often - it may not have the update yet.
+VERSION_CHECK_EVERY = 30 * 60
+_version_checked_at = 0.0
+
+
+def _version_tuple(v) -> tuple:
+    return tuple(int(x) for x in str(v).split("."))
+
+
+def refresh_app_version(settings: Settings, now: float | None = None) -> str:
+    """A 204 locked the farm out: read the version Steam now ships and, if it is
+    NEWER than our app_ver, adopt it (auth_config, read by every login). Returns
+    the adopted version, or "" (rate-limited, unreadable, or not newer). Before:
+    a manual fix (2026-10-07: 1.35.1 -> 1.35.2 after 4.5 h locked out)."""
+    global _version_checked_at, _mint_block_until
+    now = time.time() if now is None else now
+    if now - _version_checked_at < VERSION_CHECK_EVERY:
+        return ""
+    if _mint_block_until > now:           # Steam's login rate limit: no extra login now
+        return ""
+    _version_checked_at = now
+    try:
+        cfg = load_auth_config(settings)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("game version check skipped: %s", exc)
+        return ""
+    current = str(cfg.get("app_ver") or "")
+    latest = steam.latest_game_version(settings.icarus_root, cfg)
+    if latest == "ratelimit":             # not a version: Steam refused the login
+        _mint_block_until = time.time() + mint_cooldown()
+        return ""
+    if not latest:
+        return ""
+    try:
+        newer = _version_tuple(latest) > _version_tuple(current)
+    except ValueError:
+        newer = bool(latest) and latest != current
+    if not newer:
+        log.info("Steam still ships %s (we send %s) - looking again in %d min.",
+                 latest, current, VERSION_CHECK_EVERY // 60)
+        return ""
+    try:
+        fresh = load_auth_config(settings)        # re-read: the probe took seconds
+        fresh["app_ver_prev"], fresh["app_ver"] = fresh.get("app_ver"), latest
+        save_auth_config(settings, fresh)
+    except Exception as exc:  # noqa: BLE001 - a failed save must never end the farm
+        log.warning("could not save the new client version %s (%s)", latest, exc)
+        return ""
+    log.warning("Game update: client version %s -> %s (read from Steam) - switched "
+                "automatically (the previous one is kept as app_ver_prev).", current, latest)
+    try:
+        from . import notify
+        notify.post({"username": "AIC", "content": (
+            f"🔄 Game update: client version {current} → {latest}, read from Steam and "
+            f"switched automatically - farming resumes.")})
+    except Exception:  # noqa: BLE001 - the switch matters, not the message
+        pass
+    return latest
+
+
 def save_auth_config(settings: Settings, cfg: dict) -> None:
     out = dict(cfg)
     for key in _SECRET_KEYS:

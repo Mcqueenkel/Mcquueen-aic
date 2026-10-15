@@ -1,8 +1,9 @@
 # Rebuilding the farm VPS from this laptop
 
-The VPS (`ssh -p <port> root@<VPS-IP>`, Ubuntu 22.04) runs **only AIC** - no
-Icarus bot, web UI or tunnel. It was wiped once (2026-10-04) and rebuilt from
-this folder plus the private backup beside it. Everything needed is here:
+The VPS (`ssh -p <port> root@<VPS-IP>`, Ubuntu 20.04; 22.04 works the same) runs
+**only AIC** - no Icarus bot, web UI or tunnel. It has been wiped twice (2026-10-04,
+and ~2026-10-09 when the provider moved it to a new address) and rebuilt from this
+folder plus the private backup beside it, in about 15 minutes. Everything needed is here:
 
 | what | where on the laptop | where on the VPS |
 |---|---|---|
@@ -26,7 +27,14 @@ off shared drives.
    as umabot, `cd ~`, install uv, then
    `uv venv --python 3.12 ~/.venvs/aic && uv pip install --python ~/.venvs/aic/bin/python curl_cffi==0.7.4 msgpack==1.1.0 pycryptodome==3.14.1`.
 2. Copy the project to `/opt/aic`, the data/mdb/node_modules to `/opt/umabot`, the backup files to the
-   paths above; `chown -R umabot:umabot /opt/aic /opt/umabot`; set the modes shown.
+   paths above; `chown -R umabot:umabot /opt/aic /opt/umabot`; set the modes shown. Create every
+   `ReadWritePaths=` directory of aic.service, or it fails to start with `226/NAMESPACE`:
+   `install -d -o umabot -g umabot /opt/umabot/uma_runtime /opt/aic/state/aic /opt/aic/runtime/aic`.
+   Write `/etc/umabot.env` with LF line endings (not from a Windows editor as-is).
+   The backup is a snapshot: set `app_ver` in auth_config to the game's current version (the
+   laptop's `UmamusumePrettyDerby_Data/globalgamemanagers` holds it; the farm also fixes it itself
+   on the first 204), and re-create this week's `state/aic/ace_state.json` / `ace_once.json` if
+   the Ace Runs already done must not be repeated.
 3. **Strip Windows line endings** (the units fail silently otherwise):
    `sed -i 's/\r$//' /opt/aic/*.sh /opt/aic/scripts/*.sh /etc/systemd/system/aic*.service /etc/systemd/system/aic-health.timer`.
 4. `ln -sfn /opt/umabot/node_modules /opt/aic/vendor/node_modules`.

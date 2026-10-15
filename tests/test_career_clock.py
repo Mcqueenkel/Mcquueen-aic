@@ -15,6 +15,7 @@ every lap, forever.
 from __future__ import annotations
 
 import sys
+import os
 import tempfile
 import types
 from pathlib import Path
@@ -81,7 +82,16 @@ class Harness:
         r.finishes_at = self.clock.now + float(remaining)
         return r
 
-    def run(self, cycles: int, career_minutes: float = 50.0, **kw):
+    def run(self, cycles: int, career_minutes: float = 50.0, jitter=(0.0, 0.0), **kw):
+        # The clock tests check exact timing, so the random visit wait is off
+        # unless a test asks for it (test_random_wait_between_visits).
+        saved_jitter, rotate.VISIT_JITTER_SECONDS = rotate.VISIT_JITTER_SECONDS, jitter
+        try:
+            return self._run(cycles, career_minutes, **kw)
+        finally:
+            rotate.VISIT_JITTER_SECONDS = saved_jitter
+
+    def _run(self, cycles: int, career_minutes: float = 50.0, **kw):
         saved = (rotate.time, rotate.acct, rotate.visit, careerclock.time)
         rotate.time = types.SimpleNamespace(
             time=self.clock.time, sleep=self.clock.sleep,
@@ -442,8 +452,40 @@ def test_an_absurd_clock_is_bounded() -> None:
         check("NaN is refused too", careerclock.due_at(s, 111) is None)
 
 
+def test_random_wait_between_visits() -> None:
+    print("each account waits a random 5-20 min after its career is due, never a fixed rhythm")
+    with tempfile.TemporaryDirectory() as tmp:
+        h = Harness(tmp, {1: 3000.0}, [(1, "solo")])
+        h.run(cycles=12, jitter=(300.0, 1200.0))
+        times = [t for t, _ in h.order]
+        extra = [times[i + 1] - times[i] - 3000.0 - careerclock.FINISH_GRACE
+                 for i in range(len(times) - 1)]
+        check("every gap = career + grace + a wait inside 5-20 min",
+              extra and all(300.0 - 1e-6 <= e <= 1200.0 + 1e-6 for e in extra),
+              str([round(e) for e in extra]))
+        check("the waits actually vary (not one fixed offset)",
+              len({round(e) for e in extra}) >= 5, str([round(e) for e in extra]))
+    with tempfile.TemporaryDirectory() as tmp:
+        h = Harness(tmp, {1: 3000.0}, [(1, "solo")])
+        h.run(cycles=4, jitter=(300.0, 1200.0))
+        check("a career is never collected EARLY by the wait",
+              all(b - a >= 3000.0 for (a, _), (b, _) in zip(h.order, h.order[1:])))
+    saved = dict(os.environ)
+    try:
+        os.environ.update(AIC_VISIT_JITTER_MIN="0", AIC_VISIT_JITTER_MAX="0")
+        check("0/0 turns it off", rotate._jitter_range() == (0.0, 0.0))
+        os.environ.update(AIC_VISIT_JITTER_MIN="20", AIC_VISIT_JITTER_MAX="5")
+        check("a max below the min is raised to the min", rotate._jitter_range() == (1200.0, 1200.0))
+        os.environ.pop("AIC_VISIT_JITTER_MIN"); os.environ.pop("AIC_VISIT_JITTER_MAX")
+        check("default is 5-20 minutes", rotate._jitter_range() == (300.0, 1200.0))
+    finally:
+        os.environ.clear()
+        os.environ.update(saved)
+
+
 def main() -> int:
-    for fn in (test_even_roster_still_round_robins,
+    for fn in (test_random_wait_between_visits,
+               test_even_roster_still_round_robins,
                test_a_short_career_comes_back_early,
                test_early_arrival_does_not_cost_a_lap,
                test_clock_is_written_and_resumed,
