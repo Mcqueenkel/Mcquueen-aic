@@ -1,24 +1,5 @@
 # AutoIndependentCareer (`aic`)
 
-> **Not in this repository (by design):** `vendor/` - Icarus' `uma_api`,
-> `career_bot` and the Frida agent (`frida_agent.js`), which are third-party code
-> under a no-redistribution licence: copy them in from an Icarus checkout after
-> cloning. Also never committed: the roster with Link Passwords
-> (`reroll_accounts.json` - start from `reroll_accounts.example.json`), `state/`,
-> `runtime/`, `bot.json`, `*.env` and every other credential file listed in
-> `.gitignore`. On the VPS they live in `/etc/umabot.env`, `/etc/aic-discord.env`
-> and `/opt/aic/{state,runtime}` (see `deploy/vps/RESTORE.md`).
-
-Headless CLI that authenticates to Umamusume, waits out a running Independent
-Career, ends it taking the first factors, and starts a fresh one with a valid
-trainee / parent pair / support deck / training schedule.
-
-The wire protocol is **not** reimplemented here. `aic` imports Icarus'
-`uma_api.client` (AES/msgpack framing, the rolling sid, the Steam ticket
-generator) so protocol fixes there land here for free, and it reads credentials
-from Icarus' `uma_runtime/<profile>/auth_config.json` so it inherits a working
-frida capture instead of needing its own.
-
 ## The Independent Career API
 
 Internally the game calls it **idle single mode**. Endpoints (transcribed from
