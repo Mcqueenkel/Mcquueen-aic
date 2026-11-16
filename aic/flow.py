@@ -7,12 +7,14 @@ Each step is a separate function so the CLI can run them individually
 
 from __future__ import annotations
 
+import json
 import os
 import random
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 
-from . import (career, fancap, independent, notify, racedata, veterans,
+from . import (career, carats, fancap, independent, notify, racedata, veterans,
                account as account_mod, selection as sel, succession)
 from .auth import Session, boot
 from .config import ITEM_CLOCK, Settings
@@ -83,6 +85,25 @@ class CycleResult:
 # step 1 - authenticate and reach the main screen
 # --------------------------------------------------------------------------- #
 
+def _save_inventory(settings: Settings, viewer_id: int, index: dict) -> None:
+    """The account's card lists as of this login, to state/inventory/<viewer>.json:
+    one roster shares one Steam login, so this is how to read an account without
+    taking it from the rotation. Zero API calls; never fatal."""
+    if not viewer_id:
+        return
+    try:
+        out = Path(settings.state_dir) / "inventory" / f"{viewer_id}.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        tmp = out.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps({"saved_at": int(time.time()),
+                                   "support_card_list": index.get("support_card_list") or [],
+                                   "card_list": index.get("card_list") or []}),
+                       encoding="utf-8")
+        tmp.replace(out)
+    except (OSError, TypeError, ValueError, AttributeError) as exc:
+        log.debug("inventory snapshot skipped (%s)", exc)
+
+
 def connect(settings: Settings, refresh_ticket: bool = True,
             steam_code: str = "") -> Session:
     session = boot(settings, refresh_ticket=refresh_ticket, steam_code=steam_code)
@@ -103,6 +124,7 @@ def connect(settings: Settings, refresh_ticket: bool = True,
         len(account.owned_support_card_ids),
         len(account.support_card_decks),
     )
+    _save_inventory(settings, account.viewer_id, session.load_index or {})
     if not account.idle_mode_available:
         log.warning("This account shows no Independent Career unlock date "
                     "(common_define.idle_single_mode_open_date is absent).")
@@ -256,6 +278,17 @@ def end_running_career(session: Session, state: CareerState, spec: Spec,
             # they can never disagree about the day.
             breakdown = [(names.get(viewer, ""), viewer, gained)
                          for viewer, gained in rows]
+        carat_rows: list = []
+        if settings is not None and account.viewer_id:
+            # Same coin_info TP recovery reads; chores._fold_items keeps it
+            # current through gift and daily-race claims.
+            ci = getattr(getattr(session, "client", None), "coin_info", None) \
+                or (session.load_index or {}).get("coin_info")
+            if isinstance(ci, dict) and "fcoin" in ci:
+                carats.record(settings, account.viewer_id,
+                              int(ci.get("fcoin") or 0), int(ci.get("coin") or 0))
+                carat_rows = [(names.get(v, ""), v, total, change, free, paid)
+                              for v, total, change, free, paid in carats.day_rows(settings)]
         notify.career_finished(
             summary,
             account=(names.get(account.viewer_id)
@@ -265,6 +298,7 @@ def end_running_career(session: Session, state: CareerState, spec: Spec,
             roster_fans=roster_fans,
             roster_accounts=roster_accounts or 0,
             breakdown=breakdown,
+            carat_rows=carat_rows,
             viewer_id=account.viewer_id or 0,
             scenario=state.scenario_id,
             forced=result.forced,
@@ -459,7 +493,7 @@ def build_selection(session: Session, settings: Settings, *,
     relations = load_relations(str(settings.data_root))
     node_1, node_2 = p1.as_family_node(), p2.as_family_node()
     # family_points is the real 7-link formula (trainee vs its two direct
-    # parents, plus the 5-link parent tree) - what the vendored client's own client computes.
+    # parents, plus the 5-link parent tree) - what the real client computes.
     # parent_only (the 5-link tree alone) is kept as a cheap secondary
     # candidate, not the primary value.
     points = succession.family_points(trainee, node_1, node_2, relations)

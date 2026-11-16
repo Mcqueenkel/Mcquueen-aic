@@ -1,17 +1,13 @@
 @echo off
-REM Account switching. Prefers the old bot virtualenv interpreter.
+REM Account switching. Uses .venv\ next to this file if it exists (see README),
+REM else python on PATH. Override with AIC_PY=C:\path\to\python.exe
 setlocal
 
 set "HERE=%~dp0"
-if "%AIC_DATA_ROOT%"=="" set "AIC_DATA_ROOT=%HERE%..\data-root"
-set "VENV_PY=%AIC_DATA_ROOT%\.venv\Scripts\python.exe"
+if "%AIC_PY%"=="" if exist "%HERE%.venv\Scripts\python.exe" set "AIC_PY=%HERE%.venv\Scripts\python.exe"
+if "%AIC_PY%"=="" set "AIC_PY=python"
 
-if exist "%VENV_PY%" (
-    "%VENV_PY%" "%HERE%account_cli.py" %*
-) else (
-    echo [!] the old bot venv not found at "%VENV_PY%"; falling back to system python.
-    python "%HERE%account_cli.py" %*
-)
+"%AIC_PY%" "%HERE%account_cli.py" %*
 
 endlocal
 exit /b %ERRORLEVEL%

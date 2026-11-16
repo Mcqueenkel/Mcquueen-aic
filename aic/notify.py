@@ -1,6 +1,6 @@
 """Post a finished career to Discord. Stdlib only, and never fatal.
 
-the old bot has this (``career_bot/core/notify.py``); AIC never did - a finished idle
+Before this, a finished idle
 career only ever reached the log. On a VPS with no UI that means the one number
 worth watching, fans banked, is invisible unless you go and read a file.
 
@@ -34,8 +34,8 @@ TIMEOUT = 10.0
 
 #: Discord sits behind Cloudflare, which BLOCKS the default Python urllib
 #: User-Agent outright: HTTP 403, error code 1010. MEASURED 2026-09-01 - the same
-#: POST returns 204 with any explicit UA. the vendored client's notify._post has always set one;
-#: this is why. Without it every webhook fails, silently and forever.
+#: POST returns 204 with any explicit UA. Hence the explicit
+#: UA below. Without it every webhook fails, silently and forever.
 USER_AGENT = "aic-career-notify/1.0"
 
 #: Discord rejects an embed with more than 25 fields, and truncates long values.
@@ -74,6 +74,23 @@ def _breakdown_block(breakdown, highlight: int = 0) -> str:
     return "```\n" + "\n".join(lines) + "\n```"
 
 
+def _carat_block(rows, highlight: int = 0) -> str:
+    """``[(name, viewer_id, total, change, free, paid)]`` as one aligned code
+    block: carats now and today's change, same marking as the fans table."""
+    rows = [(str(name or f"Trainer {viewer}"), int(viewer), int(total), int(change))
+            for name, viewer, total, change, *_ in rows]
+    if not rows:
+        return ""
+    shown, dropped = rows[:_MAX_ROWS], rows[_MAX_ROWS:]
+    width = max(len(name) for name, *_ in shown)
+    lines = [f"{'>' if highlight and viewer == highlight else ' '} {name:<{width}}"
+             f"  {total:>9,}  {change:>+8,}" for name, viewer, total, change in shown]
+    if dropped:
+        lines.append(f"  ... {len(dropped)} more account(s), "
+                     f"{sum(r[2] for r in dropped):,} carats")
+    return "```\n" + "\n".join(lines) + "\n```"
+
+
 def webhook() -> str:
     return (os.environ.get("AIC_CAREER_WEBHOOK") or "").strip()
 
@@ -94,7 +111,8 @@ def _rank_colour(rank_score) -> int:
 def build_embed(summary: dict, *, account: str = "", trainee: str = "",
                 fans_today: int | None = None, roster_fans: int | None = None,
                 roster_accounts: int = 0,
-                breakdown: list | None = None, viewer_id: int = 0,
+                breakdown: list | None = None, carat_rows: list | None = None,
+                viewer_id: int = 0,
                 scenario: int = 0, forced: bool = False,
                 races: int = 0, ace: bool = False) -> dict:
     fans = summary.get("fans")
@@ -122,6 +140,19 @@ def build_embed(summary: dict, *, account: str = "", trainee: str = "",
         # the same reason: it is a table, not a stat.
         add("Fans today, per account",
             _breakdown_block(breakdown, highlight=viewer_id), inline=False)
+    if carat_rows:
+        # Carats = free + paid (aic.carats); "today" counts from the 15:00 UTC
+        # reset, so it goes negative on a day TP refills cost more than came in.
+        mine = next((r for r in carat_rows if viewer_id and r[1] == viewer_id), None)
+        if mine:
+            add("Carats", f"{mine[2]:,} ({mine[3]:+,} today)")
+        total, change = sum(r[2] for r in carat_rows), sum(r[3] for r in carat_rows)
+        free, paid = sum(r[4] for r in carat_rows), sum(r[5] for r in carat_rows)
+        add(f"Carats, all {len(carat_rows)} accounts",
+            f"**{total:,}** ({change:+,} today) · free {free:,} · paid {paid:,}",
+            inline=False)
+        add("Carats per account (now / today)",
+            _carat_block(carat_rows, highlight=viewer_id), inline=False)
     add("Races run", races or None)
     add("Scenario", scenario or None)
     add("Factors", len(factors) if factors else None)

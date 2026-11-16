@@ -102,7 +102,7 @@ def extract(mdb_path: Path) -> dict:
         # Which character(s) each support card counts as, for the game's "no
         # two of the same uma" rule. Normally one, straight off the card row -
         # exact, unlike matching names, and it covers cards too new to be in
-        # the vendored client's support_list.json. ``support_card_group`` then adds the few
+        # data/support_list.json. ``support_card_group`` then adds the few
         # cards that count as SEVERAL characters at once: 30081 (Team Sirius,
         # 6 members) and 30067 (3 members) today.
         card_charas: dict[str, list[int]] = {}

@@ -8,8 +8,8 @@
 set -e
 [ "$(id -u)" = 0 ] || { echo "run as root"; exit 1; }
 SRC=/opt/aic
-[ -x /opt/aic-discord/venv/bin/python ] || { echo "missing /opt/aic-discord/venv - see deploy/vps/RESTORE.md"; exit 1; }
-command -v claude >/dev/null || echo "note: Claude Code is not installed yet - !ask will fail (see RESTORE.md)"
+[ -x /opt/aic-discord/venv/bin/python ] || { echo "missing /opt/aic-discord/venv - see README.md"; exit 1; }
+command -v claude >/dev/null || echo "note: Claude Code is not installed yet - !ask will fail (see README.md)"
 
 # Claude's user: full sudo, so !ask can fix anything on the box (that is the point of it)
 id claudeops >/dev/null 2>&1 || useradd -m -s /bin/bash claudeops

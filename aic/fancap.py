@@ -1,6 +1,6 @@
-"""Per-account, per-game-day fan cap - the one ops feature the old bot has and this did not.
+"""Per-account, per-game-day fan cap.
 
-Ported from the vendored client's ``scripts/multi_account_run.py`` (``_daily_baseline`` /
+Ported from the older career bot's ``scripts/multi_account_run.py`` (``_daily_baseline`` /
 ``sweep_day_fans.json``): same rollover, same restart-safety, deliberately the
 same on-disk shape, because the bug it exists to prevent is the same one.
 
@@ -11,7 +11,7 @@ the hundreds of millions, so an absolute number is meaningless; what is wanted i
 **The baseline is PERSISTED, keyed by viewer_id.** Keeping it only in the running
 process resets it to the current total on every restart, so a mid-day restart
 farms the whole target a *second* time on top of what the day already had.
-MEASURED in the old bot 2026-08-31: a restart made one account farm 33M again over
+MEASURED in the older career bot 2026-08-31: a restart made one account farm 33M again over
 ~9.7M already gained -> ~43M in one day. It rolls over on its own at the 15:00
 UTC reset because ``day`` changes and no stored record matches - no timer needed.
 
@@ -33,6 +33,10 @@ before it consults the goal.
 Setting ``AIC_FAN_TARGET`` again re-arms the cap with no other change:
 
     Environment=AIC_FAN_TARGET=15000000     # ~2/3 of a day, if a cap is wanted
+
+RE-ARMED 2026-10-20 at 28M with AIC_FAN_STOP_MARGIN=0 and no visit jitter: at
+~28 careers a day the five accounts banking 1.06-1.12M a career cross it; the
+rest top out at ~25-27.9M and never stop.
 """
 
 from __future__ import annotations
@@ -53,7 +57,7 @@ log = get("fancap")
 GAME_DAY_RESET_UTC_HOUR = 15
 
 #: Stop this many fans BEFORE the target, so the career started at the last
-#: uncapped visit can finish without pushing past it. the old bot uses 1.1M for a
+#: uncapped visit can finish without pushing past it. The older career bot used 1.1M for a
 #: turn-by-turn career (~0.7-1.0M each).
 #:
 #: ponytail: idle-career fan yield is NOT measured yet (see HANDOFF §7's open

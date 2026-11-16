@@ -116,7 +116,7 @@ def _new_client(settings: Settings, cfg: dict):
 def _signup_and_login(client) -> None:
     """Create an account and open a session on it.
 
-    Deliberately NOT ``UmaClient.login()``. the vendored client's version also calls
+    Deliberately NOT ``UmaClient.login()``. The vendored client's version also calls
     ``tool/start_session/load`` and ``read_info/index``; on a brand-new account
     those answer 1102/102 and poison the session - afterwards every endpoint
     that mutates the account (``user/change_name``, ``account/*``) returns 217

@@ -32,7 +32,7 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("-p", "--profile", help="runtime profile (default: default)")
-    parser.add_argument("--data-root", help="path to the data-root checkout")
+    parser.add_argument("--data-root", help="game data folder (data/*.json, node_modules)")
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument("--steam-code", default="", metavar="CODE",
                         help="Steam Guard code, if one is needed to start the session")
@@ -41,7 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--career-minutes", type=float, default=0,
                         help="career length used to space visits (default: 50)")
     parser.add_argument("--no-delay", action="store_true",
-                        help="remove EVERY delay between requests, including the old bot client's per-request floor. An experiment: the edge (Akamai) tends to answer 403 at machine speed")
+                        help="remove EVERY delay between requests, including the vendored client's per-request floor. An experiment: the edge (Akamai) tends to answer 403 at machine speed")
 
     sub = parser.add_subparsers(dest="command", required=True)
 

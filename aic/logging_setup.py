@@ -49,7 +49,7 @@ def setup(state_dir: Path, verbose: bool = False) -> logging.Logger:
     fh.setFormatter(_RedactingFormatter("[%(asctime)s] %(levelname)-7s %(name)s: %(message)s"))
     root.addHandler(fh)
 
-    # the old bot logs through its own tree; surface warnings so version/session
+    # The vendored client logs through its own tree; surface warnings so version/session
     # problems are not swallowed, but keep its DEBUG chatter off the console.
     for name in ("client", "uma.client", "career_bot"):
         lg = logging.getLogger(name)

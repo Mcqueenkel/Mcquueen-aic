@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-"""Entry point. Run with the old bot virtualenv interpreter:
-
-    ..\\data-root\\.venv\\Scripts\\python.exe aic_cli.py run
-"""
+"""Entry point: ``aic.bat`` / ``./aic.sh`` (or ``python aic_cli.py run``)."""
 
 import sys
 from pathlib import Path

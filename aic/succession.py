@@ -125,8 +125,8 @@ SWEEP_RANGE = SWEEP_UP
 class RelationData:
     """Relationship groups and their point values.
 
-    Read from the game's ``master.mdb`` when it can be found, because the vendored client's
-    JSON snapshots are a **stale subset**: 1043 vs 1616 relation types and 2599
+    Read from the game's ``master.mdb`` when it can be found, because the
+    data/*.json snapshots are a **stale subset**: 1043 vs 1616 relation types and 2599
     vs 3056 memberships at the time of writing, with 57 of 74 characters missing
     groups (chara 1029 has 4 of its 46, chara 1098 has 7 of its 59). The mdb is
     a strict superset - no type exists only in the JSON and no ``relation_point``
@@ -175,7 +175,7 @@ class RelationData:
                 con.close()
         except Exception as exc:  # noqa: BLE001 - fall back to the JSON snapshot
             log.debug("could not read relations from master.mdb (%s); "
-                      "falling back to the old bot snapshot", exc)
+                      "falling back to the JSON snapshot", exc)
             self.members, self.points = {}, {}
             return False
 
@@ -199,7 +199,7 @@ class RelationData:
                 for row in json.load(fh):
                     self.points[int(row["relation_type"])] = int(row["relation_point"])
             self.source = str(data_dir)
-            log.debug("relations from the old bot snapshot (stale subset of master.mdb)")
+            log.debug("relations from the JSON snapshot (stale subset of master.mdb)")
         except (OSError, ValueError, KeyError, TypeError) as exc:
             log.warning("could not load succession relation data (%s); the rank "
                         "point cannot be computed", exc)

@@ -2,8 +2,7 @@
 
     python tests/test_fan_cap.py
 
-Mirrors the vendored client's tests/test_fan_daily_baseline.py, because it guards the same
-bug: a mid-day restart that resets the baseline farms the whole target twice.
+Guards the bug the cap exists for: a mid-day restart that resets the baseline farms the whole target twice.
 """
 
 from __future__ import annotations

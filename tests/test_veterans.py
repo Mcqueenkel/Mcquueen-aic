@@ -194,6 +194,7 @@ def test_make_room_verifies_by_rereading() -> None:
             return {"trained_chara": self.client.rows}
 
     veterans._last_delete.clear()
+    veterans._refused.clear()
     c = Client()
     got = veterans.make_room(Session(c))
     check("it deleted the worst copy", got and got["trained_chara_id"] == 1,
@@ -207,17 +208,20 @@ def test_make_room_verifies_by_rereading() -> None:
 
     # The server said OK but nothing went away: must report failure, not success.
     veterans._last_delete.clear()
+    veterans._refused.clear()
     c = Client(actually_delete=False)
     check("a no-op delete is reported as failure",
           veterans.make_room(Session(c)) is None)
 
     # It raised, but the write had landed anyway - the re-read is the truth.
     veterans._last_delete.clear()
+    veterans._refused.clear()
     c = Client(actually_delete=True, raise_it=False)
     check("a successful delete after a raised call still counts",
           veterans.make_room(Session(c)) is not None)
 
     veterans._last_delete.clear()
+    veterans._refused.clear()
     c = Client(raise_it=True)
     check("a raise with nothing deleted is a failure, not a crash",
           veterans.make_room(Session(c)) is None)
@@ -253,6 +257,7 @@ def test_deletion_is_rate_limited() -> None:
                     "user_info": {"viewer_id": 777}}
 
     veterans._last_delete.clear()
+    veterans._refused.clear()
     c = Client()
     sess = Session(c)
     check("the first deletion goes through", veterans.make_room(sess) is not None)
@@ -268,10 +273,77 @@ def test_deletion_is_rate_limited() -> None:
 
     # The guard is per account, not global.
     veterans._last_delete.clear()
+    veterans._refused.clear()
     veterans._last_delete[999] = time.time()
     check("another account is unaffected",
           veterans.make_room(sess) is not None)
     veterans._last_delete.clear()
+    veterans._refused.clear()
+
+
+def test_a_refused_veteran_is_skipped() -> None:
+    """MEASURED 2026-10-21..29: the server refused (205) to delete one veteran -
+    the lowest score, so picked on every visit - and two accounts sat at 2511
+    for 8 days. The next-worst copy must go instead, in the same call."""
+    print("a veteran the server will not delete is skipped")
+    rows = [vet(1, 100902, 507), vet(2, 100902, 900), vet(3, 100902, 950)]
+
+    class Client:
+        def __init__(self):
+            self.calls = []
+            self.rows = [dict(r) for r in rows]
+
+        def call(self, ep, args=None, **kw):
+            self.calls.append(args["trained_chara_id_array"])
+            if args["trained_chara_id_array"] == [1]:
+                raise RuntimeError("API error 205")       # the tutorial copy
+            gone = set(args["trained_chara_id_array"])
+            self.rows = [r for r in self.rows if r["trained_chara_id"] not in gone]
+            return {"data": {}}
+
+    class Session:
+        def __init__(self, client):
+            self.client = client
+
+        def refresh_home(self):
+            return {"trained_chara": self.client.rows, "user_info": {"viewer_id": 555}}
+
+    veterans._last_delete.clear()
+    veterans._refused.clear()
+    c = Client()
+    got = veterans.make_room(Session(c))
+    check("the next-worst copy is deleted in the same call",
+          got and got["trained_chara_id"] == 2 and c.calls == [[1], [2]], str(c.calls))
+    veterans._last_delete.clear()
+    got = veterans.make_room(Session(c))
+    check("next time the refused one is not even asked",
+          got and got["trained_chara_id"] == 3 and c.calls[2:] == [[3]], str(c.calls))
+
+    class NeverClient(Client):
+        def call(self, ep, args=None, **kw):
+            self.calls.append(args["trained_chara_id_array"])
+            raise RuntimeError("API error 205")
+
+    veterans._last_delete.clear()
+    veterans._refused.clear()
+    c = NeverClient()
+    check("a server refusing everything costs at most MAX_CANDIDATES asks",
+          veterans.make_room(Session(c)) is None
+          and len(c.calls) == veterans.MAX_CANDIDATES, str(c.calls))
+
+    class TimeoutClient(Client):
+        def call(self, ep, args=None, **kw):
+            self.calls.append(args["trained_chara_id_array"])
+            raise RuntimeError("API error 208")       # may still land later
+
+    veterans._last_delete.clear()
+    veterans._refused.clear()
+    c = TimeoutClient()
+    check("anything but a 205 never moves on to a second copy",
+          veterans.make_room(Session(c)) is None and c.calls == [[1]]
+          and not veterans._refused.get(555), str(c.calls))
+    veterans._last_delete.clear()
+    veterans._refused.clear()
 
 
 def main() -> int:
@@ -282,7 +354,8 @@ def main() -> int:
                test_a_fully_protected_group_falls_through,
                test_never_deletes_a_singleton,
                test_make_room_verifies_by_rereading,
-               test_deletion_is_rate_limited):
+               test_deletion_is_rate_limited,
+               test_a_refused_veteran_is_skipped):
         fn()
         print()
     if FAILURES:

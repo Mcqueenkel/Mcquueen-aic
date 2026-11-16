@@ -1,7 +1,5 @@
-﻿"""Static game data, read from the data checkout's ``data/`` directory.
-
-We read the vendored client's copies rather than vendoring our own so a data refresh there
-(new cards, new characters) is picked up automatically.
+﻿"""Static game data, read from the data root's ``data/`` directory
+(``AIC_DATA_ROOT``, /opt/umabot on the VPS).
 """
 
 from __future__ import annotations
@@ -144,8 +142,8 @@ def support_card_charas() -> dict[int, frozenset]:
     """``support_card_id`` -> the character id(s) that card counts as.
 
     Read from ``master.mdb``, and worth preferring over name matching wherever
-    it is available: it is exact, it covers cards too new for the vendored client's
-    ``support_list.json`` (whose absence silently disables the duplicate check),
+    it is available: it is exact, it covers cards too new for
+    ``data/support_list.json`` (whose absence silently disables the duplicate check),
     and ``support_card_group`` gives the handful of cards that count as
     **several** characters at once - 30081 (Team Sirius, 6) and 30067 (3).
     Character ids 9001-9008 are support-only characters that are never

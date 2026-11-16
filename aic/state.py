@@ -91,8 +91,11 @@ class ServerClock:
     """
 
     #: Calibration sources, best first. A source never loses to a worse one.
+    #: "cached start_time" is a fresh start_time carried over from an earlier
+    #: run: the window and the anchor can only ever err UPWARD (an expired run,
+    #: a stale anchor), so neither may undo it - only the next career start can.
     _RANK = {"assumed": 0, "cached": 1, "update_time anchor": 2,
-             "career window": 3, "fresh start_time": 4}
+             "career window": 3, "cached start_time": 4, "fresh start_time": 4}
 
     def __init__(self, offset: int = DEFAULT_SERVER_UTC_OFFSET,
                  calibration: str = "assumed"):
@@ -526,11 +529,16 @@ def load_clock(settings) -> ServerClock:
     if offset % 3600 or not -11 * 3600 <= offset <= 14 * 3600:
         log.debug("cached server clock offset %s is implausible; ignoring", offset)
         return ServerClock()
-    return ServerClock(offset=offset, calibration="cached")
+    exact = cached.get("source") == "fresh start_time"
+    return ServerClock(offset=offset, calibration="cached start_time" if exact else "cached")
 
 
 def save_clock(settings, clock: ServerClock) -> None:
-    if not clock.derived or clock.calibration == "cached":
+    # Only the exact source is kept. MEASURED 2026-10-15: with visits 5-20 min
+    # after a run expired, the window read every finished run as live under
+    # +1h..+14h, saved that, and the next login started from it - ~90 careers
+    # banked a day instead of ~448.
+    if clock.calibration != "fresh start_time":
         return
     path = settings.state_dir / "server_clock.json"
     try:

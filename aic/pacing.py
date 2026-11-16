@@ -1,7 +1,7 @@
 """The global "remove every delay" switch.
 
 Requests are paced in two places: this package's own gaps (between gacha pulls,
-between farmed accounts, around signup) and the old bot client's per-request
+between farmed accounts, around signup) and the vendored client's per-request
 floor - a 0.14s minimum between raw calls plus a ~0.166s inter-request sleep,
 and 0.83/2.5s gaps inside its signup sequence.
 
@@ -13,9 +13,9 @@ timing-sensitive - delays over ~10s inside its window return 1808, and removing
 them entirely is an equally distinctive pattern. Treat it as an experiment, not
 a speed setting.
 
-the old bot is a separate checkout, so its sleeps are neutralised by swapping the
-``time`` module *it* looks up for a proxy whose ``sleep`` does nothing, rather
-than by editing that tree.
+The client's sleeps are neutralised by swapping the ``time`` module *it*
+looks up for a proxy whose ``sleep`` does nothing, rather than by editing
+vendor/.
 """
 
 from __future__ import annotations
@@ -63,7 +63,7 @@ class _NoSleepTime:
 
 
 def patch_client(client_module) -> bool:
-    """Neutralise the old bot client's internal request pacing.
+    """Neutralise the vendored client's internal request pacing.
 
     Returns True if the patch was applied. Idempotent.
     """
@@ -74,6 +74,6 @@ def patch_client(client_module) -> bool:
     client_module.time = _NoSleepTime()
     client_module._aic_no_delay = True
     log.warning("AIC_NO_DELAY: every inter-request delay is removed, including "
-                "the old bot client's 0.14s floor. Expect 403s from the edge, "
+                "the client's 0.14s floor. Expect 403s from the edge, "
                 "and 1808 from the gacha if its sequence is disturbed.")
     return True

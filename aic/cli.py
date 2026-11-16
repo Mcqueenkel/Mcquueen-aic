@@ -24,14 +24,14 @@ def build_parser() -> argparse.ArgumentParser:
         description="Headless driver for Umamusume Independent (idle) Careers.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
-            "Credentials come from the data checkout's\n"
-            "uma_runtime/<profile>/auth_config.json. Run the old bot once to capture\n"
-            "them from the game before using this tool."
+            "Credentials come from runtime/<profile>/auth_config.json.\n"
+            "Run `account capture` once to capture them from the game\n"
+            "before using this tool."
         ),
     )
     parser.add_argument("--version", action="version", version=f"aic {__version__}")
-    parser.add_argument("-p", "--profile", help="the old bot runtime profile (default: default)")
-    parser.add_argument("--data-root", help="path to the data-root checkout")
+    parser.add_argument("-p", "--profile", help="runtime profile (default: default)")
+    parser.add_argument("--data-root", help="game data folder (data/*.json, node_modules)")
     parser.add_argument("-v", "--verbose", action="store_true", help="debug logging")
     parser.add_argument("--steam-code", default="", metavar="CODE",
                         help="Steam Guard code, to mint a ticket when Guard is "
@@ -41,7 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--no-ticket-refresh", action="store_true",
                         help="reuse the saved Steam ticket instead of minting a fresh one")
     parser.add_argument("--no-delay", action="store_true",
-                        help="remove EVERY delay between requests, including the old bot client's per-request floor. An experiment: the edge (Akamai) tends to answer 403 at machine speed")
+                        help="remove EVERY delay between requests, including the vendored client's per-request floor. An experiment: the edge (Akamai) tends to answer 403 at machine speed")
 
     sub = parser.add_subparsers(dest="command", required=True)
 

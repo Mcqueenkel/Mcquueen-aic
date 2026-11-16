@@ -40,7 +40,7 @@ APP_ID = "3224770"
 
 #: Frida agent: hooks the unitytls write vtable entries and reassembles POSTs.
 _AGENT_PATH = Path(__file__).resolve().parent.parent / "vendor" / "frida_agent.js"
-#: Third-party (the old bot) code, kept in vendor/ like uma_api - not in git. Empty when
+#: Third-party code, kept in vendor/ like uma_api - not in git. Empty when
 #: missing, so importing this module never fails; capture() says what to copy in.
 try:
     FRIDA_AGENT = _AGENT_PATH.read_text(encoding="utf-8")
@@ -172,8 +172,7 @@ def capture(settings: Settings, timeout: int = 180, launch: bool = True,
     except ImportError as exc:
         hint = ("pip install frida  (into this interpreter's environment)"
                 if os.name != "nt" else
-                "It ships with the vendored client's requirements; run this with the old bot "
-                "virtualenv interpreter.")
+                "pip install frida  (into this interpreter's environment)")
         raise CaptureError(f"frida is not installed. {hint}") from exc
 
     # A first capture has nothing to start from - it is what writes the config.
@@ -210,7 +209,7 @@ def capture(settings: Settings, timeout: int = 180, launch: bool = True,
 
     try:
         if not FRIDA_AGENT:
-            raise CaptureError(f"{_AGENT_PATH} is missing - copy it in from a data checkout")
+            raise CaptureError(f"{_AGENT_PATH} is missing - copy vendor/ in from your private backup")
         script = session.create_script(FRIDA_AGENT)
         script.on("message", on_message)
         script.load()

@@ -122,7 +122,7 @@ def validate_password(password: str) -> None:
 def hash_password(password: str) -> str:
     """``md5(password + SALT)`` - how the game transmits a Link Password.
 
-    The salt comes from the old bot rather than being copied here, so it stays in one
+    The salt comes from the vendored client rather than being copied here, so it stays in one
     place. Works either once :func:`aic.bootstrap.bind` has run or whenever
     ``uma_api`` is otherwise importable.
     """
@@ -130,7 +130,7 @@ def hash_password(password: str) -> str:
         salt = bootstrap.api().SALT
     except Exception:  # noqa: BLE001 - not bound; fall back to the vendored client
         # The vendored copy ships with this tool, so the salt is available even
-        # on a box with no data checkout (where a bare `uma_api` import fails).
+        # before bind() has put vendor/ on sys.path.
         vendor = str(Path(__file__).resolve().parent.parent / "vendor")
         if vendor not in sys.path:
             sys.path.insert(0, vendor)
@@ -423,7 +423,7 @@ def login_with_link(settings: Settings, trainer_id: int, password: str) -> LinkR
 
         ``regen_sid()`` before each: the sid rolls forward after every response,
         but these unauthenticated calls are validated against a sid derived
-        fresh from ``make_sid(viewer_id, udid)``. the vendored client's working ``signup()``
+        fresh from ``make_sid(viewer_id, udid)``. The vendored client's working ``signup()``
         regenerates immediately before ``tool/signup`` for exactly this reason -
         omitting it answers 102.
         """

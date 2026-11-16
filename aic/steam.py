@@ -1,6 +1,6 @@
 """A persistent Steam session, so one login serves a whole run.
 
-Steam cancels an app session ticket when the process that owns it exits. the vendored client's
+Steam cancels an app session ticket when the process that owns it exits. The vendored
 ``get_ticket`` spawns node, mints a ticket and returns - so the ticket starts
 dying immediately, and every command needs a brand new **Steam login**. At any
 real rotation rate that trips Steam Guard.
@@ -35,7 +35,7 @@ log = get("steam")
 
 APP_ID = 3224770
 
-#: Node driver. Differs from the vendored client's one-shot generator in that it never exits:
+#: Node driver. Differs from the vendored one-shot generator in that it never exits:
 #: the live connection to Steam is what keeps the ticket valid.
 PERSISTENT_JS = r"""
 const SteamUser = require("steam-user");

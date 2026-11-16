@@ -69,6 +69,17 @@ MIN_SECONDS_BETWEEN_DELETES = 1800.0
 #: than one per account before the guard applies again).
 _last_delete: dict[int, float] = {}
 
+#: viewer_id -> veterans the server refused to delete (still present after the
+#: remove). MEASURED 2026-10-21..29: ela and Gameapadeh both stuck on id 1 (their
+#: tutorial Daiwa Scarlet, rank 2, score 507), refused with 205 on every visit -
+#: the lowest score, so picked every time - and 2511 for 8 days. In memory: a
+#: restart asks once more, then skips it again.
+_refused: dict[int, set[int]] = {}
+
+#: Candidates tried per call when the server refuses one. Only a CONFIRMED delete
+#: returns, so this never deletes more than one veteran per call.
+MAX_CANDIDATES = 3
+
 #: Arrays in ``load/index`` whose entries reference a veteran that is in use.
 #: Missing keys are skipped: not every account has every game mode unlocked.
 _IN_USE_ARRAYS = (
@@ -217,41 +228,53 @@ def make_room(session, keep: set[int] | None = None) -> dict | None:
                   "capacity is refusing the start.", waited / 60, viewer)
         return None
 
-    victim = pick_victim(index, keep)
-    if victim is None:
-        held = len((index or {}).get("trained_chara") or [])
-        log.error("Storage is full (%s veterans) but nothing may be deleted: "
-                  "every duplicate is locked, favourited, on the Team Trials "
-                  "roster, or in use. Free a slot in the game client.", held)
-        return None
+    refused = _refused.setdefault(viewer, set())
+    for _ in range(MAX_CANDIDATES):
+        victim = pick_victim(index, set(keep or ()) | refused)
+        if victim is None:
+            held = len((index or {}).get("trained_chara") or [])
+            log.error("Storage is full (%s veterans) but nothing may be deleted: "
+                      "every duplicate is locked, favourited, on the Team Trials "
+                      "roster, in use, or refused by the server (%s). Free a slot "
+                      "in the game client.", held, sorted(refused) or "none")
+            return None
 
-    vid = int(victim["trained_chara_id"])
-    log.warning("Trained-character storage is full. Deleting 1 of the %s copies "
-                "of character %s: id %s, rank %s, score %s, registered %s. "
-                "(%s of that group are deletable.)",
-                victim.get("_group_size"), victim.get("_chara"), vid,
-                victim.get("rank"), victim.get("rank_score"),
-                victim.get("register_time") or victim.get("create_time") or "?",
-                victim.get("_group_deletable"))
+        vid = int(victim["trained_chara_id"])
+        log.warning("Trained-character storage is full. Deleting 1 of the %s copies "
+                    "of character %s: id %s, rank %s, score %s, registered %s. "
+                    "(%s of that group are deletable.)",
+                    victim.get("_group_size"), victim.get("_chara"), vid,
+                    victim.get("rank"), victim.get("rank_score"),
+                    victim.get("register_time") or victim.get("create_time") or "?",
+                    victim.get("_group_deletable"))
 
-    try:
-        # retry_208/205 OFF: this write is irreversible, and a retry of a call
-        # the server already applied would delete a SECOND veteran. Success is
-        # confirmed below by re-reading, so a lost reply costs nothing.
-        session.client.call("trained_chara/remove",
-                            {"trained_chara_id_array": [vid]},
-                            retry_208=0, retry_205=0)
-    except Exception as exc:  # noqa: BLE001 - verified by re-read either way
-        log.warning("trained_chara/remove raised (%s); checking whether it "
-                    "applied anyway.", type(exc).__name__)
+        rc = None
+        try:
+            # retry_208/205 OFF: this write is irreversible, and a retry of a call
+            # the server already applied would delete a SECOND veteran. Success is
+            # confirmed below by re-reading, so a lost reply costs nothing.
+            session.client.call("trained_chara/remove",
+                                {"trained_chara_id_array": [vid]},
+                                retry_208=0, retry_205=0)
+        except Exception as exc:  # noqa: BLE001 - verified by re-read either way
+            rc = getattr(exc, "result_code", None) or (205 if "205" in str(exc) else None)
+            log.warning("trained_chara/remove raised (%s); checking whether it "
+                        "applied anyway.", type(exc).__name__)
 
-    after = session.refresh_home() or {}
-    still = {int(r.get("trained_chara_id") or 0)
-             for r in (after.get("trained_chara") or []) if isinstance(r, dict)}
-    if vid in still:
-        log.error("Veteran %s is still present after the delete; storage was "
-                  "not freed.", vid)
-        return None
-    _last_delete[viewer] = time.time()
-    log.info("Deleted veteran %s. %s veterans remain.", vid, len(still))
-    return victim
+        index = session.refresh_home() or {}
+        still = {int(r.get("trained_chara_id") or 0)
+                 for r in (index.get("trained_chara") or []) if isinstance(r, dict)}
+        if vid not in still:
+            _last_delete[viewer] = time.time()
+            log.info("Deleted veteran %s. %s veterans remain.", vid, len(still))
+            return victim
+        if rc != 205:
+            # Not the measured refusal: a 208, a lost reply or a stale re-read may
+            # still land, and asking for the next copy too could delete two.
+            log.error("Veteran %s is still present after the delete; storage was "
+                      "not freed.", vid)
+            return None
+        refused.add(vid)
+        log.error("Veteran %s: the server refused the delete (205); skipping it "
+                  "from now on and trying the next copy.", vid)
+    return None

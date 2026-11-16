@@ -4,8 +4,8 @@ __pycache__/
 .pytest_cache/
 *.log
 
-# --- Third-party code: the old bot (proprietary licence - no redistribution) -------
-# uma_api, career_bot and the Frida agent; copy them in from a data checkout.
+# --- Third-party code (proprietary licence - no redistribution) ---------------
+# uma_api, career_bot and the Frida agent; copy vendor/ in from your private backup.
 vendor/
 
 # --- Runtime state: accounts, Link Passwords, Steam/auth tokens, logs -------
@@ -17,6 +17,7 @@ steam_auth_data/
 trace_logs/
 dumps/
 node_modules/
+gamedata/
 .venv/
 venv/
 accounts.json
@@ -24,7 +25,8 @@ CHANGES_FROM_DISCORD.md
 
 # --- Credentials and secrets: NEVER commit -----------------------------------
 # Link Passwords in plain text - recovery credentials for real accounts.
-reroll_accounts.json
+reroll_accounts*.json
+!reroll_accounts.example.json
 accounts.txt
 accounts_with_passwords.*
 # Discord bot token.
@@ -46,3 +48,5 @@ aic-vps-backup/
 # the instructions in aic/proton.py, not committed (large, versioned).
 tools/frida-server*.exe
 *.mdb
+# card inventory dumps (per-account game data, not code)
+inventory_*.txt

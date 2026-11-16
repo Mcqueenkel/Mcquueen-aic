@@ -25,12 +25,12 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("-p", "--profile", help="runtime profile (default: default)")
-    parser.add_argument("--data-root", help="path to the data-root checkout")
+    parser.add_argument("--data-root", help="game data folder (data/*.json, node_modules)")
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument("--steam-code", default="", metavar="CODE",
                         help="Steam Guard code, to mint a ticket when Guard is blocking")
     parser.add_argument("--no-delay", action="store_true",
-                        help="remove EVERY delay between requests, including the old bot client's per-request floor. An experiment: the edge (Akamai) tends to answer 403 at machine speed")
+                        help="remove EVERY delay between requests, including the vendored client's per-request floor. An experiment: the edge (Akamai) tends to answer 403 at machine speed")
 
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -246,7 +246,7 @@ def _dispatch(args, settings, log, acct, flow) -> int:
         from . import bootstrap
         from .auth import refresh_steam_ticket
 
-        # Nothing has logged in on this path, so the old bot layer (which owns
+        # Nothing has logged in on this path, so the client layer (which owns
         # the ticket generator) has not been imported yet.
         bootstrap.bind(settings)
 

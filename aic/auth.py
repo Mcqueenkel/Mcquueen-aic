@@ -1,10 +1,9 @@
 ﻿"""Authentication and the boot sequence up to the main (/load) screen.
 
-This mirrors what the old bot does on startup, minus the FastAPI layer and minus the
-frida capture. We only implement the *headless bypass* path: reuse the
+This mirrors the real client's startup, minus the frida capture. We only implement the *headless bypass* path: reuse the
 ``auth_config.json`` a previous frida capture wrote, mint a fresh Steam session
 ticket, and log in. If the saved config is stale or absent the user has to run
-the old bot once to re-capture - there is no way to derive ``auth_key`` ourselves.
+`account capture` once to re-capture - there is no way to derive ``auth_key`` ourselves.
 """
 
 from __future__ import annotations
@@ -41,7 +40,7 @@ class AuthError(RuntimeError):
 # --------------------------------------------------------------------------- #
 
 def _deobfuscate(value: Any) -> Any:
-    """Reverse the vendored client's ``enc:`` scheme and uma-reroll-farm's ``enc3:`` DPAPI one.
+    """Reverse the ``enc:`` obfuscation scheme and uma-reroll-farm's ``enc3:`` DPAPI one.
 
     Neither is encryption in any meaningful sense; ``enc:`` is reversed base64.
     We support both so an auth_config written by either tool loads here.
@@ -199,26 +198,26 @@ def save_auth_config(settings: Settings, cfg: dict) -> None:
 
 
 def validate_auth_config(cfg: dict) -> None:
-    """the vendored client's ``has_fresh_auth_config`` gate, as an exception-raising check."""
+    """The ``has_fresh_auth_config`` gate, as an exception-raising check."""
     app_ver = str(cfg.get("app_ver") or "").strip()
     res_ver = str(cfg.get("res_ver") or "").strip()
     if not app_ver or not res_ver:
-        raise AuthError("auth_config is missing app_ver/res_ver - re-capture with the old bot")
+        raise AuthError("auth_config is missing app_ver/res_ver - re-capture it (account capture)")
 
     auth_key = str(cfg.get("auth_key") or "").strip().lower()
     if not re.fullmatch(r"[0-9a-f]+", auth_key) or len(auth_key) < 32 or len(auth_key) % 2:
-        raise AuthError("auth_config auth_key is malformed - re-capture with the old bot")
+        raise AuthError("auth_config auth_key is malformed - re-capture it (account capture)")
     if int(cfg.get("auth_key_len") or 0) != 48:
-        raise AuthError("auth_config auth_key_len != 48 - re-capture with the old bot")
+        raise AuthError("auth_config auth_key_len != 48 - re-capture it (account capture)")
 
     udid = str(cfg.get("udid") or "").strip()
     if len(udid) != 36 or udid.count("-") != 4:
-        raise AuthError("auth_config udid is not a UUID - re-capture with the old bot")
+        raise AuthError("auth_config udid is not a UUID - re-capture it (account capture)")
 
     if not cfg.get("viewer_id"):
-        raise AuthError("auth_config has no viewer_id - re-capture with the old bot")
+        raise AuthError("auth_config has no viewer_id - re-capture it (account capture)")
     if not cfg.get("steam_id"):
-        raise AuthError("auth_config has no steam_id - re-capture with the old bot")
+        raise AuthError("auth_config has no steam_id - re-capture it (account capture)")
 
 
 #: A stored ticket younger than this is reused instead of minting a new one.
@@ -290,8 +289,8 @@ def game_is_running() -> bool:
 def ticket_age(cfg: dict, settings: Settings | None = None) -> float:
     """Seconds since the stored ticket was minted.
 
-    Falls back to the auth_config's mtime when there is no timestamp - the old bot
-    rewrites the file whenever it captures, so that is a fair proxy - and to
+    Falls back to the auth_config's mtime when there is no timestamp - a capture
+    rewrites the file, so that is a fair proxy - and to
     infinity when even that is unavailable.
     """
     stamped = cfg.get("steam_ticket_ts")
@@ -412,7 +411,7 @@ def refresh_steam_ticket(cfg: dict, settings: Settings | None = None,
 
     # Preferred: a persistent steam-user process. The ticket stays valid while
     # that process lives, so one login covers the whole run however many
-    # accounts get switched. the vendored client's get_ticket exits immediately, which is why
+    # accounts get switched. The one-shot get_ticket exits immediately, which is why
     # its tickets die within minutes and every command needs a fresh login.
     if settings is not None and not cfg.get("steam_disable_persistent"):
         try:
@@ -442,7 +441,7 @@ def refresh_steam_ticket(cfg: dict, settings: Settings | None = None,
                          "a password or a Guard code.")
             return True
 
-    # Minting goes through the vendored client's get_ticket, so the old bot has to be bound. Most
+    # Minting goes through the vendored get_ticket, so the client has to be bound. Most
     # callers have booted already, but `farm` reaches the one-shot mint before
     # it ever builds a client - and only when the persistent Steam session
     # failed, which is why this stayed hidden. bind() is idempotent.
@@ -532,7 +531,7 @@ def boot(settings: Settings, refresh_ticket: bool = True,
          steam_code: str = "") -> Session:
     """Authenticate and walk the full sequence to the main screen.
 
-    The call order matches the real client and the old bot:
+    The call order matches the real client:
       tool/start_session -> tool/start_session/load -> load/index ->
       read_info/index -> story_event/index -> trained_chara/load ->
       pre_single_mode/index
@@ -626,7 +625,7 @@ _STALE_HINT = (
     "  client, or with `account.bat login` from a different machine.\n"
     "  auth_key is bound to the udid in the request header and cannot be derived\n"
     "  offline, so it has to be re-captured:\n"
-    "    1. Run the old bot (the capture) and let it capture auth from the game.\n"
+    "    1. Run `account.bat capture` with the game open on Windows.\n"
     "    2. Rerun this command.\n"
     "  `account.bat import-capture` only works when the switch itself was captured\n"
     "  with the same udid the tool is using."
@@ -636,8 +635,8 @@ _STALE_HINT = (
 def _login_hint(rc, exc) -> str:
     hints = {
         201: "session expired - the Steam ticket was stale; retry",
-        214: "client data version is behind the server; re-capture auth with the old bot",
-        204: "client version is behind the server; re-capture auth with the old bot",
+        214: "client data version is behind the server; the farm updates app_ver itself (or set it in auth_config)",
+        204: "client version is behind the server; the farm updates app_ver itself (or set it in auth_config)",
         217: "session was invalidated elsewhere (another client logged in)",
         391: "Steam ticket rejected - mint a fresh one (is Steam running/online?)",
     }

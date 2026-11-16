@@ -1,6 +1,6 @@
-"""Alert when the AIC farmer is WEDGED. Modelled on the vendored client's scripts/health_alert.py.
+"""Alert when the AIC farmer is WEDGED.
 
-Same design rules as that one, and for the same reasons:
+Design rules:
 
 * **Alert on the state, never on the transition into it.** There is no "changed"
   check and no last-alerted file: every run that finds a fault reports it, and
@@ -11,8 +11,7 @@ Same design rules as that one, and for the same reasons:
 * **Read what the bot actually did, from outside it.** Nothing here touches AIC;
   it reads the log AIC already writes and asks systemd a read-only question.
 
-AIC's own checks differ from the vendored client's: there is no web UI to poll and no
-``api_library``. What it has is one log, and the useful property that **it
+There is no web UI to poll and no ``api_library``. What AIC has is one log, and the useful property that **it
 announces every long sleep before taking it** - a rotation interval, an idle
 career's next poll, a fan-cap wait. So a stale log whose last line is an
 announced wait is healthy; a stale log that stopped anywhere else is a wedge.
@@ -110,8 +109,8 @@ RESULT_CODE_HELP = {
            "fresh one. (UMA_STEAM_SHARED_SECRET is umabot's variable and has no effect on AIC.)",
     "394": "the Steam session ticket was invalidated, usually because the game was opened "
            "elsewhere on this Steam account.",
-    "204": "stale APP-VER. Push the live Windows client's version: "
-           "python scripts/push_app_ver.py --host <vps> --launch (in the data checkout).",
+    "204": "stale APP-VER. The farm switches to a new game version itself; if it has not, "
+           "set app_ver in auth_config.json to the game's version and restart once.",
     "501": "empty APP-VER. Set UMA_APP_VER before blaming the account.",
     "214": "resource-version mismatch. It self-heals, so seeing it LAST means the retry never landed.",
     "205": "the start was refused. Usually the race plan or the succession rank point - check the "
@@ -157,7 +156,7 @@ def check_unit(unit: str):
     A unit that is DISABLED, MASKED or not installed is a configuration the
     operator chose, not a fault, and alerting on a chosen configuration is how
     people learn to ignore alerts (the same reasoning that makes UMA_NO_API_LIBRARY
-    not a fault in the vendored client's version). A crash never disables a unit - it leaves it
+    not a fault). A crash never disables a unit - it leaves it
     enabled and failed - so nothing real is lost by staying quiet here.
     """
     enabled = _systemctl("is-enabled", unit)

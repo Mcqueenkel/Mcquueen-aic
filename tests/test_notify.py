@@ -129,9 +129,24 @@ def test_user_agent_is_set() -> None:
           "python" not in (seen.get("ua") or "").lower(), str(seen.get("ua")))
 
 
+def test_carats() -> None:
+    rows = [("McKing", 11, 52300, 1155, 52000, 300), ("ela", 22, 4100, -100, 4100, 0)]
+    f = {x["name"]: x["value"] for x in
+         notify.build_embed(SUMMARY, carat_rows=rows, viewer_id=22)["embeds"][0]["fields"]}
+    check("this account's carats and signed change", f.get("Carats") == "4,100 (-100 today)", repr(f.get("Carats")))
+    all_ = f.get("Carats, all 2 accounts", "")
+    check("all-account total, change, free/paid split",
+          all_ == "**56,400** (+1,055 today) · free 56,100 · paid 300", repr(all_))
+    table = f.get("Carats per account (now / today)", "")
+    check("per-account table marks this account",
+          "> ela" in table and "  McKing" in table and "+1,155" in table, repr(table))
+    plain = notify.build_embed(SUMMARY)["embeds"][0]["fields"]
+    check("no carat fields without readings", not any("Carat" in x["name"] for x in plain))
+
+
 def main() -> int:
     for fn in (test_off_by_default, test_embed, test_failure_is_never_fatal,
-               test_user_agent_is_set):
+               test_user_agent_is_set, test_carats):
         fn()
         print()
     if FAILURES:

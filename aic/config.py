@@ -1,6 +1,6 @@
 ﻿"""Paths, profile resolution and the on-disk settings file.
 
-Nothing in here imports the old bot modules - ``bootstrap`` needs the resolved
+Nothing in here imports the vendored client - ``bootstrap`` needs the resolved
 paths *before* those imports can happen, so this module must stay dependency
 free.
 """
@@ -15,8 +15,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SETTINGS_PATH = PROJECT_ROOT / "settings.json"
 
-#: Where we expect the data checkout to live if nothing overrides it.
-DEFAULT_DATA_ROOT = PROJECT_ROOT.parent / "data-root"
+#: Game data (data/*.json, node_modules/steam-user) when AIC_DATA_ROOT is unset.
+DEFAULT_DATA_ROOT = PROJECT_ROOT / "gamedata"
 
 #: Item ids read out of ``load/index``'s ``item_list``. These are the only ones
 #: the start flow needs; item 75 in particular is the succession rank point
@@ -67,9 +67,8 @@ def _read_json(path: Path) -> dict:
 class Settings:
     """Resolved run configuration.
 
-    ``runtime_dir`` deliberately points *into* the data checkout: that is
-    where the frida capture writes ``auth_config.json``, and reusing it means
-    this tool inherits working credentials instead of needing its own capture.
+    ``runtime_dir`` holds ``auth_config.json`` (the captured login and the Steam
+    refresh token); ``state_dir`` holds everything the farm learns and logs.
     """
 
     data_root: Path
@@ -110,15 +109,7 @@ def load_settings(profile: str | None = None,
         or "default"
     )
 
-    # An data checkout is optional now that uma_api is vendored (see
-    # aic/bootstrap.py). When one is present it is still used - it may be newer,
-    # and its uma_runtime/ is where credentials already live. When it is not,
-    # everything moves under this project instead.
-    has_checkout = (root / "uma_api" / "client.py").is_file()
-    if has_checkout:
-        runtime_dir = root / "uma_runtime" / prof
-    else:
-        runtime_dir = PROJECT_ROOT / "runtime" / prof
+    runtime_dir = PROJECT_ROOT / "runtime" / prof
     state_dir = PROJECT_ROOT / "state" / prof
     state_dir.mkdir(parents=True, exist_ok=True)
 

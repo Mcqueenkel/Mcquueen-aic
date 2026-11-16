@@ -1,15 +1,13 @@
-# aic imports the wire protocol from the data checkout, so its dependencies
-# are what matter. Running via aic.bat (which uses the vendored client's .venv) needs nothing
-# installed here.
-#
-# Install these only if you want to run aic with a separate interpreter:
+# Python 3.12 (not newer: these pinned versions predate 3.13).
+#   uv venv --python 3.12 ~/.venvs/aic
+#   uv pip install --python ~/.venvs/aic/bin/python -r requirements.txt
 curl_cffi==0.7.4
 msgpack==1.1.0
 pycryptodome==3.14.1
 
-# Only for `account capture` on Linux (drives frida-server inside the game's
-# Proton/Wine session; see aic/proton.py). Not needed to run careers.
+# Only for `account capture` (reading auth_config.json off the game on Windows,
+# or under Proton on Linux). Not needed to run the farm.
 frida==17.17.0
 
-# Node.js is also required (for Steam session ticket generation) - the old bot
-# checkout's node_modules provides `steam-user`.
+# Also required: Node.js 20 + steam-user 5.3.0 for Steam session tickets
+#   npm install --prefix <data root> steam-user@5.3.0

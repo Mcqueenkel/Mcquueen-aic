@@ -1,7 +1,7 @@
 ﻿"""The Independent Career ("idle single mode") API.
 
 Endpoints and payload shapes below are transcribed from captures of the real
-client under ``UmaDumpy-main/dumps/`` - none of this exists in the old bot.
+client under ``UmaDumpy-main/dumps/``.
 
     idle_single_mode/pre_start           -> light probe (flow B) OR the full
                                              submission (flow A) - see below
@@ -115,7 +115,7 @@ class IdleModeError(RuntimeError):
 def _quiet_client_errors():
     """Mute the vendored client's per-call error logging for an expected-to-fail probe.
 
-    the old bot logs the whole request payload at ERROR on every 205/102. That is the
+    The client logs the whole request payload at ERROR on every 205/102. That is the
     right default for its own runner, but here a rejection is how we search, so
     it buries the run in dumps. Restored on exit, including on exception.
     """
@@ -632,12 +632,12 @@ def start(session, spec: Spec, selection, account, schedule: Schedule,
     def attempt(cost: int, points: int, endpoint: str = ""):
         """Returns the response, or None when the server rejects the values.
 
-        ``retry_205=0`` is essential. the vendored client's client retries 205 three times by
+        ``retry_205=0`` is essential. The vendored client retries 205 three times by
         default, and its no-retry exclusion list is keyed on the *scenario*
         prefix, so these endpoints are not covered - every probe would
         otherwise cost four server calls and four screens of error dump.
 
-        A rejected probe is an expected outcome here, not an error, so the vendored client's
+        A rejected probe is an expected outcome here, not an error, so the client's
         full-payload dump is muted for the duration; the final failure carries
         the diagnosis instead.
         """

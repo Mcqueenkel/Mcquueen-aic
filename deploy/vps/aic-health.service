@@ -1,6 +1,6 @@
-# The wedged-state alert for the AIC farmer. Counterpart of umabot-health.service.
+# The wedged-state alert for the AIC farmer.
 #
-#   sudo cp deploy/aic-health.{service,timer} /etc/systemd/system/
+#   sudo cp deploy/vps/aic-health.{service,timer} /etc/systemd/system/
 #   sudo systemctl daemon-reload && sudo systemctl enable --now aic-health.timer
 #
 # The failure this exists for does NOT make aic.service fail, so OnFailure= on that unit would

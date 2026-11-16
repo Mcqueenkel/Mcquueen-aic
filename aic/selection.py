@@ -251,8 +251,7 @@ def resolve_trainee_label(label: str, owned_card_ids, gamedata) -> tuple[int, st
     The roster carries what the operator wrote, not a card id, because a card id
     is per-account and unmemorable. Matching is on the card's display name, so
     ``"Oguri_alt"`` finds ``"Oguri Cap (Alt)"`` - every word of the label must
-    appear in the name. Ported from the vendored client's ``resolve_trainee``, which solves the
-    same problem for its sweep.
+    appear in the name. Ported from the older career bot's ``resolve_trainee``.
 
     Returns ``(card_id, note)``. **card_id 0 means "could not resolve"**, and the
     caller must fall back to the automatic pick rather than guess: picking the

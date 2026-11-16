@@ -39,7 +39,7 @@ from aic.state import (  # noqa: E402
 
 DATA_ROOT = Path(
     os.environ.get("AIC_DATA_ROOT")
-    or Path(__file__).resolve().parent.parent.parent / "data-root"
+    or Path(__file__).resolve().parent.parent / "gamedata"
 )
 
 FAILURES: list[str] = []
@@ -54,7 +54,7 @@ def check(label: str, condition: bool, detail: str = "") -> None:
 
 
 def unwrap(path: str) -> dict:
-    """The decoded body of a UmaDumpy / the old bot capture file."""
+    """The decoded body of a UmaDumpy capture file."""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     body = raw.get("data", raw)
     return body if "data_headers" in body or "response_code" in body else raw
@@ -198,6 +198,25 @@ def test_clock_anchor_staleness() -> None:
     check("a window still refines a merely-cached clock",
           cached.calibration == "career window")
 
+    # The pin must survive a new login: every visit loads the clock from disk.
+    import tempfile
+    from types import SimpleNamespace
+    from aic.state import load_clock, save_clock
+    s = SimpleNamespace(state_dir=Path(tempfile.mkdtemp()))
+    save_clock(s, pinned)
+    later = load_clock(s)
+    later.servertime = start_naive + 3600 + 4 * 3600          # visit long after expiry
+    later.calibrate_from_window(*expired_args)
+    later._calibrate_from_anchor("2026-07-30 21:39:43")         # 4h-stale anchor
+    check("a saved start_time pin survives the next login's window and anchor",
+          later.offset == 3600 and later.calibration == "cached start_time", later.offset)
+    save_clock(s, cached)                                       # a window guess
+    check("a window guess is never saved over it",
+          load_clock(s).calibration == "cached start_time")
+    later.servertime = start_naive + 7200 + 3                   # server moved an hour
+    check("the next career start still re-pins it",
+          later.calibrate_from_fresh("2026-07-30 21:39:43") and later.offset == 7200)
+
 
 def test_clock_source_ranking() -> None:
     print("server clock / source ranking")
@@ -247,18 +266,32 @@ def test_clock_persistence() -> None:
         check("missing cache gives a default clock",
               load_clock(settings).calibration == "assumed")
 
-        good = ServerClock(offset=3600, calibration="career window")
+        save_clock(settings, ServerClock(offset=3600, calibration="career window"))
+        check("a window guess is not persisted",
+              load_clock(settings).calibration == "assumed")
+
+        good = ServerClock(offset=0, calibration="fresh start_time")
         save_clock(settings, good)
         restored = load_clock(settings)
-        check("offset round-trips", restored.offset == 3600)
-        check("restored clock is marked cached", restored.calibration == "cached")
+        check("offset round-trips", restored.offset == 0)
+        check("restored start_time keeps its rank",
+              restored.calibration == "cached start_time")
 
         # An assumed clock must not overwrite a real cached value.
         save_clock(settings, ServerClock(offset=-99999))
-        check("assumed clock is not persisted", load_clock(settings).offset == 3600)
+        check("assumed clock is not persisted", load_clock(settings).offset == 0)
         save_clock(settings, ServerClock(offset=7200, calibration="cached"))
         check("re-saving a cached clock is a no-op",
-              load_clock(settings).offset == 3600)
+              load_clock(settings).offset == 0)
+        save_clock(settings, restored)
+        check("re-saving a restored pin is a no-op",
+              load_clock(settings).offset == 0)
+
+        # A file an older build wrote from a guess loads as merely cached.
+        (Path(tmp) / "server_clock.json").write_text(
+            '{"offset": 18000, "source": "career window"}', encoding="utf-8")
+        check("old guess-sourced file is only cached",
+              load_clock(settings).calibration == "cached")
 
         (Path(tmp) / "server_clock.json").write_text('{"offset": 1234}', encoding="utf-8")
         check("non-hour offset rejected", load_clock(settings).calibration == "assumed")
@@ -557,7 +590,7 @@ def test_tp_probe_calls() -> None:
     check("skips unaffordable candidates",
           run(reject_first=False, tp_available=20) == [15])
 
-    # Regression: the old bot retries 205 three times by default, and its no-retry
+    # Regression: the vendored client retries 205 three times by default, and its no-retry
     # list is keyed on the scenario prefix so idle_single_mode/start is not
     # covered. Without retry_205=0 every probe costs four calls.
     seen_kwargs = {}
@@ -805,7 +838,7 @@ def test_succession_points() -> None:
                                   node(100201), relations)
     check("grandparents contribute", with_gps >= lone, f"({with_gps} vs {lone})")
 
-    # With neither master.mdb nor the old bot snapshot readable, the score must
+    # With neither master.mdb nor the JSON snapshot readable, the score must
     # degrade to 0 rather than raise. master.mdb is found independently of
     # data_root, so it has to be masked to exercise this.
     from aic import racedata as _racedata
@@ -1597,7 +1630,7 @@ def test_capture() -> None:
     check("a short header yields nothing",
           cap.udid_from_envelope("ab" * 4) == [])
 
-    # Real envelope: an auth_config archived from an actual the old bot capture keeps
+    # Real envelope: an auth_config archived from an actual capture keeps
     # the wire body and the udid it was taken under.
     # Pick an archive whose body and udid actually belong together. After an
     # account switch the two can disagree - the envelope was captured under the
@@ -2644,9 +2677,9 @@ def test_start_request_shape() -> None:
 
 def main() -> int:
     if not (DATA_ROOT / "data" / "support_list.json").is_file():
-        print(f"error: the old bot data not found under {DATA_ROOT}", file=sys.stderr)
+        print(f"error: game data not found under {DATA_ROOT} (set AIC_DATA_ROOT)", file=sys.stderr)
         return 2
-    # Some helpers reach into the vendored client's uma_api (the SALT, the AES/IV derivation).
+    # Some helpers reach into the vendored uma_api (the SALT, the AES/IV derivation).
     # Put it on the path once, the way bootstrap.bind() would at runtime.
     if str(DATA_ROOT) not in sys.path:
         sys.path.insert(0, str(DATA_ROOT))
