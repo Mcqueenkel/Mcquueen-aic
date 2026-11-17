@@ -40,8 +40,8 @@ APP_ID = "3224770"
 
 #: Frida agent: hooks the unitytls write vtable entries and reassembles POSTs.
 _AGENT_PATH = Path(__file__).resolve().parent.parent / "vendor" / "frida_agent.js"
-#: Third-party code, kept in vendor/ like uma_api - not in git. Empty when
-#: missing, so importing this module never fails; capture() says what to copy in.
+#: Third-party code, kept in vendor/ like uma_api. Empty when missing, so
+#: importing this module never fails; capture() says what is wrong.
 try:
     FRIDA_AGENT = _AGENT_PATH.read_text(encoding="utf-8")
 except OSError:
@@ -209,7 +209,7 @@ def capture(settings: Settings, timeout: int = 180, launch: bool = True,
 
     try:
         if not FRIDA_AGENT:
-            raise CaptureError(f"{_AGENT_PATH} is missing - copy vendor/ in from your private backup")
+            raise CaptureError(f"{_AGENT_PATH} is missing - check out the full repository (vendor/ is part of it)")
         script = session.create_script(FRIDA_AGENT)
         script.on("message", on_message)
         script.load()

@@ -4,9 +4,10 @@ __pycache__/
 .pytest_cache/
 *.log
 
-# --- Third-party code (proprietary licence - no redistribution) ---------------
-# uma_api, career_bot and the Frida agent; copy vendor/ in from your private backup.
-vendor/
+# --- Third-party code ---------------------------------------------------------
+# vendor/ (uma_api, career_bot, the Frida agent) is tracked: no-redistribution
+# licence, so keep this repository private. Its node_modules/ and uma_runtime/
+# are ignored by the rules below.
 
 # --- Runtime state: accounts, Link Passwords, Steam/auth tokens, logs -------
 state/

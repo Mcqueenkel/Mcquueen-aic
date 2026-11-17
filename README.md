@@ -31,7 +31,6 @@ It runs 24/7 as a systemd service on a small Linux VPS.
 
 | File | Where it comes from | Where it goes on the server |
 |---|---|---|
-| `vendor/` | your private backup | `/opt/aic/vendor/` |
 | `reroll_accounts.json` | you write it, see [Roster](#roster) | `/opt/aic/reroll_accounts.json` |
 | `auth_config.json` | captured on the PC in step 1 | `/opt/aic/runtime/aic/auth_config.json` |
 | game data: `support_list.json`, `chara_list.json`, `succession_relation.json`, `succession_relation_member.json` | your game-data backup folder | `/opt/umabot/data/` |
@@ -40,8 +39,6 @@ It runs 24/7 as a systemd service on a small Linux VPS.
 ## Install
 
 ### 1. PC: capture the game login (once)
-
-Copy `vendor\` in from your backup first, then:
 
 ```powershell
 git clone https://github.com/Mcqueenkel/Mcquueen-aic.git aic
@@ -80,7 +77,6 @@ project folder over with `scp` instead.
 Replace `PORT` and `SERVER`, and point the last two lines at your own folders:
 
 ```powershell
-scp -P PORT -r vendor root@SERVER:/opt/aic/
 scp -P PORT reroll_accounts.json root@SERVER:/opt/aic/
 scp -P PORT runtime\default\auth_config.json root@SERVER:/opt/aic/runtime/aic/
 scp -P PORT -r "C:\path\to\your\data" root@SERVER:/opt/umabot/data
