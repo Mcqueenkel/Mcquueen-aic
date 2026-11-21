@@ -1,0 +1,29 @@
+# Proxy relay for a server whose address the game refuses (scripts/proxy_pool.py).
+# Installed, and removed again, by scripts/proxy_setup.sh - see README "Proxy relay".
+# A server the game answers directly does not need it.
+
+[Unit]
+Description=AIC game-API proxy relay
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=umabot
+Group=umabot
+UMask=0077
+# AIC_PROXY_LIST (your own proxies file; empty = free public list).
+EnvironmentFile=-/etc/umabot.env
+Environment=AIC_PROFILE=aic
+ExecStart=/home/umabot/.venvs/aic/bin/python /opt/aic/scripts/proxy_pool.py
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+# state/aic/proxy_pool.json: the working pool, so a restart is ready in seconds.
+ReadWritePaths=/opt/aic/state
+
+[Install]
+WantedBy=multi-user.target

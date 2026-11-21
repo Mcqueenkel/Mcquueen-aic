@@ -28,6 +28,10 @@ CHANGES_FROM_DISCORD.md
 # Link Passwords in plain text - recovery credentials for real accounts.
 reroll_accounts*.json
 !reroll_accounts.example.json
+# Proxy lists can hold proxy passwords - keep yours outside the repo (README "Proxy relay")
+*proxies*.txt
+*proxy_list*
+proxy_pool.json
 accounts.txt
 accounts_with_passwords.*
 # Discord bot token.

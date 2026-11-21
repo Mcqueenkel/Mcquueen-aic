@@ -4,7 +4,7 @@ Farms **Umamusume: Pretty Derby** (Global, Steam) on autopilot. One Steam accoun
 rotates through many in-game accounts with Data Link, and for each account the farm:
 
 - ends the finished Auto Training (idle) career and starts the next one (Unity Cup by default);
-- stops the account for the day once it has gained 28M fans (the game day resets at 15:00 UTC);
+- farms with no daily fan cap (`AIC_FAN_TARGET` can set one; the game day resets at 15:00 UTC);
 - does the daily chores: gift box, club shoe requests and donations, Team Trials, daily races
   and Ace Runs;
 - posts every finished career (fans, carats) to Discord.
@@ -116,7 +116,11 @@ refresh token in `auth_config.json`, so the farm never needs them again. It ends
 
 ### 7. Server: start the farm
 
+First check that the game answers this server. Some providers' addresses are refused;
+then this turns on the [proxy relay](#proxy-relay), otherwise it changes nothing:
+
 ```bash
+bash /opt/aic/scripts/proxy_setup.sh
 cp /opt/aic/deploy/vps/aic.service /opt/aic/deploy/vps/aic-health.service /opt/aic/deploy/vps/aic-health.timer /etc/systemd/system/
 mkdir -p /etc/systemd/journald.conf.d && cp /opt/aic/deploy/vps/journald-aic.conf /etc/systemd/journald.conf.d/aic.conf
 systemctl daemon-reload && systemctl enable --now aic aic-health.timer && systemctl restart systemd-journald
@@ -161,15 +165,53 @@ The farm only reads the roster when it starts, so restart it once after an edit 
 | `AIC_TEAM` | `1` | Team Trials battles |
 | `AIC_GIFTS` | `1` | claim the gift box |
 | `AIC_DAILY_RACE` | `1` | use the daily race tickets |
-| `AIC_FAN_TARGET` | `28000000` | fans per account per game day, then that account waits for the reset |
+| `AIC_FAN_TARGET` | `0` | no cap; a number = fans per account per game day, then that account waits for the reset |
 | `AIC_FAN_STOP_MARGIN` | `0` | stop this many fans before the target |
 | `AIC_VISIT_JITTER_MIN` / `_MAX` | `0` | random extra wait between visits, in minutes |
 | `AIC_CAREER_WEBHOOK` | | Discord webhook for finished careers |
 | `AIC_ALERT_WEBHOOK` | | Discord webhook for health alerts |
+| `AIC_PROXY_LIST` | | your own proxies file for the [proxy relay](#proxy-relay); empty = free public list |
 
 **`deploy/vps/aic.service`** holds the career options on its `ExecStart` line: `--scenario 2`
 (Unity Cup; 1 = URA, 3 = Grand Concert, 4 = Trackblazer), the fan races to enter, TP
 refills and the auto-built fan-bonus deck.
+
+## Proxy relay
+
+Some server addresses are refused by the game (Tencent Cloud, VPNs and Cloudflare WARP
+have been). Check yours with:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}
+" https://api.games.umamusume.com/
+```
+
+`404` means the game answers and you need nothing here. `000` or `403` means it is
+refused: `bash /opt/aic/scripts/proxy_setup.sh` then runs a small relay
+(`aic-proxy.service`, [scripts/proxy_pool.py](scripts/proxy_pool.py)) that sends only the
+game's traffic through a proxy the game accepts. Steam and Discord stay direct, and the
+game's encryption runs end to end, so a proxy cannot read the logins.
+
+Where the proxies come from:
+
+- **Free public list (default).** No setup, but free proxies die often, and each visit may
+  log in from another country. Visits get slower and some fail, and the proxies are run by
+  strangers. The relay tests every proxy against the game, uses one until it fails, and
+  drops dead ones within a minute.
+- **Your own proxies (steadiest).** A paid static residential proxy gives one fixed address.
+  Put one per line in a file **outside the repository**, set its path in `/etc/umabot.env`,
+  and run the setup again:
+
+  ```bash
+  nano /etc/aic-proxies.txt      # http://user:pass@host:port  or  socks5://user:pass@host:port
+  echo 'AIC_PROXY_LIST=/etc/aic-proxies.txt' >> /etc/umabot.env
+  bash /opt/aic/scripts/proxy_setup.sh
+  ```
+
+Never commit a proxy list: `.gitignore` skips `*proxies*.txt`, and the relay keeps its
+working pool in `state/` (also ignored). `--off` turns the relay off again. Once the farm
+is running, restart it once after turning the relay on or off. `journalctl -u aic-proxy -f`
+shows which proxy is in use.
 
 ## Day to day
 
