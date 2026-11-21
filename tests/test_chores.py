@@ -6,6 +6,7 @@ flow can't re-fire every 60s and hammer the API).
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 import types
@@ -542,9 +543,9 @@ def test_team_builder() -> None:
 def test_team_formula_matches_capture() -> None:
     print("team formula: reproduces the captured team_evaluation_point (skipped without dumps)")
     import json
-    run = Path(r"dumps/20260713_192951/transactions")
+    run = Path(os.environ.get("AIC_DUMPS") or "-") / "20260713_192951" / "transactions"
     if not run.is_dir():
-        print("  skip (no dumps on this machine)")
+        print("  skip (set AIC_DUMPS to the UmaDumpy dumps folder to run it)")
         return
     edit = json.loads((run / "0007.json").read_text(encoding="utf-8"))["request"]["data"]
     edit = edit.get("data", edit)

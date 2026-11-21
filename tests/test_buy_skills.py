@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import sqlite3
 import sys
 import types
@@ -194,10 +195,10 @@ def test_buy_from() -> None:
 
 def test_replay_real_purchases() -> None:
     print("replay: the three real purchases (skipped when captures/mdb are absent)")
-    mdb = Path(r"master.mdb")
-    dumps = Path(r"dumps")
+    mdb = Path(os.environ.get("AIC_MASTER_MDB") or "-")
+    dumps = Path(os.environ.get("AIC_DUMPS") or "-")      # the UmaDumpy dumps folder
     if not mdb.is_file() or not dumps.is_dir():
-        print("  skip (no master.mdb / dumps on this machine)")
+        print("  skip (set AIC_MASTER_MDB and AIC_DUMPS to run it)")
         return
     skills._tables.cache_clear()
     skills.load_tables = lambda *a, **k: skills._tables(str(mdb))
